@@ -26,6 +26,7 @@ class Board {
   /// All squares occupied by pieces known to be promoted.
   ///
   /// This information is relevant in chess variants like [Crazyhouse].
+  /// TODO : remove
   final IraSquareSet promoted;
 
   /// All squares occupied by white pieces.

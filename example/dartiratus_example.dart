@@ -1,7 +1,7 @@
 import 'package:dartchess/dartiratus.dart';
 
 void main() {
-  // Parse fen and create a valid chess position
+  // Parse fen and create a valid iratus position
   final setup = Setup.parseFen(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
   final pos = Iratus.fromSetup(setup);
