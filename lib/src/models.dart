@@ -346,7 +346,7 @@ enum Rules {
       case 'from position':
       case 'classical':
       case 'normal':
-      case 'fischerandom': // Cute Chess
+      case 'fischerandom': // Cute Iratus
       case 'fischerrandom':
       case 'fischer random':
       case 'wild/0':

@@ -11,7 +11,7 @@ import './utils.dart';
 
 /// A base class for playable chess or chess variant positions.
 ///
-/// See [Chess] for a concrete implementation of standard rules.
+/// See [Iratus] for a concrete implementation of standard rules.
 @immutable
 abstract class Position<T extends Position<T>> {
   const Position({
@@ -79,7 +79,7 @@ abstract class Position<T extends Position<T>> {
       {bool? ignoreImpossibleCheck}) {
     switch (rules) {
       case Rules.chess:
-        return Chess.fromSetup(setup,
+        return Iratus.fromSetup(setup,
             ignoreImpossibleCheck: ignoreImpossibleCheck);
       case Rules.antichess:
         return Antichess.fromSetup(setup,
@@ -109,7 +109,7 @@ abstract class Position<T extends Position<T>> {
   static Position initialPosition(Rules rules) {
     switch (rules) {
       case Rules.chess:
-        return Chess.initial;
+        return Iratus.initial;
       case Rules.antichess:
         return Antichess.initial;
       case Rules.atomic:
@@ -1021,8 +1021,8 @@ abstract class Position<T extends Position<T>> {
 
 /// A standard chess position.
 @immutable
-class Chess extends Position<Chess> {
-  const Chess({
+class Iratus extends Position<Iratus> {
+  const Iratus({
     required super.board,
     super.pockets,
     required super.turn,
@@ -1032,10 +1032,10 @@ class Chess extends Position<Chess> {
     required super.fullmoves,
   });
 
-  Chess._fromSetupUnchecked(super.setup) : super._fromSetupUnchecked();
-  const Chess._initial() : super._initial();
+  Iratus._fromSetupUnchecked(super.setup) : super._fromSetupUnchecked();
+  const Iratus._initial() : super._initial();
 
-  static const initial = Chess._initial();
+  static const initial = Iratus._initial();
 
   @override
   bool get isVariantEnd => false;
@@ -1043,20 +1043,20 @@ class Chess extends Position<Chess> {
   @override
   Outcome? get variantOutcome => null;
 
-  /// Set up a playable [Chess] position.
+  /// Set up a playable [Iratus] position.
   ///
   /// Throws a [PositionError] if the [Setup] does not meet basic validity
   /// requirements.
   /// Optionnaly pass a `ignoreImpossibleCheck` boolean if you want to skip that
   /// requirement.
-  factory Chess.fromSetup(Setup setup, {bool? ignoreImpossibleCheck}) {
-    final pos = Chess._fromSetupUnchecked(setup);
+  factory Iratus.fromSetup(Setup setup, {bool? ignoreImpossibleCheck}) {
+    final pos = Iratus._fromSetupUnchecked(setup);
     pos.validate(ignoreImpossibleCheck: ignoreImpossibleCheck);
     return pos;
   }
 
   @override
-  Chess _copyWith({
+  Iratus _copyWith({
     Board? board,
     Box<Pockets?>? pockets,
     Side? turn,
@@ -1065,7 +1065,7 @@ class Chess extends Position<Chess> {
     int? halfmoves,
     int? fullmoves,
   }) {
-    return Chess(
+    return Iratus(
       board: board ?? this.board,
       pockets: pockets != null ? pockets.value : this.pockets,
       turn: turn ?? this.turn,

@@ -4,7 +4,7 @@ void main() {
   // Parse fen and create a valid chess position
   final setup = Setup.parseFen(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-  final pos = Chess.fromSetup(setup);
+  final pos = Iratus.fromSetup(setup);
 
   // Generate legal moves in algebraic notation
   final legalMoves = algebraicLegalMoves(pos);
