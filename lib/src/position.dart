@@ -81,27 +81,6 @@ abstract class Position<T extends Position<T>> {
       case Rules.chess:
         return Iratus.fromSetup(setup,
             ignoreImpossibleCheck: ignoreImpossibleCheck);
-      case Rules.antichess:
-        return Antichess.fromSetup(setup,
-            ignoreImpossibleCheck: ignoreImpossibleCheck);
-      case Rules.atomic:
-        return Atomic.fromSetup(setup,
-            ignoreImpossibleCheck: ignoreImpossibleCheck);
-      case Rules.kingofthehill:
-        return KingOfTheHill.fromSetup(setup,
-            ignoreImpossibleCheck: ignoreImpossibleCheck);
-      case Rules.crazyhouse:
-        return Crazyhouse.fromSetup(setup,
-            ignoreImpossibleCheck: ignoreImpossibleCheck);
-      case Rules.threecheck:
-        return ThreeCheck.fromSetup(setup,
-            ignoreImpossibleCheck: ignoreImpossibleCheck);
-      case Rules.horde:
-        return Horde.fromSetup(setup,
-            ignoreImpossibleCheck: ignoreImpossibleCheck);
-      case Rules.racingKings:
-        return RacingKings.fromSetup(setup,
-            ignoreImpossibleCheck: ignoreImpossibleCheck);
     }
   }
 
@@ -110,20 +89,6 @@ abstract class Position<T extends Position<T>> {
     switch (rules) {
       case Rules.chess:
         return Iratus.initial;
-      case Rules.antichess:
-        return Antichess.initial;
-      case Rules.atomic:
-        return Atomic.initial;
-      case Rules.kingofthehill:
-        return KingOfTheHill.initial;
-      case Rules.threecheck:
-        return ThreeCheck.initial;
-      case Rules.crazyhouse:
-        return Crazyhouse.initial;
-      case Rules.horde:
-        return Horde.initial;
-      case Rules.racingKings:
-        return RacingKings.initial;
     }
   }
 
