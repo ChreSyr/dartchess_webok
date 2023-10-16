@@ -3,45 +3,45 @@ import './utils.dart';
 import './models.dart';
 
 /// Gets squares attacked or defended by a king on [Square].
-SquareSet kingAttacks(Square square) {
+IraSquareSet kingAttacks(Square square) {
   assert(square >= 0 && square < 64);
   return _kingAttacks[square];
 }
 
 /// Gets squares attacked or defended by a knight on [Square].
-SquareSet knightAttacks(Square square) {
+IraSquareSet knightAttacks(Square square) {
   assert(square >= 0 && square < 64);
   return _knightAttacks[square];
 }
 
 /// Gets squares attacked or defended by a pawn of the given [Side] on [Square].
-SquareSet pawnAttacks(Side side, Square square) {
+IraSquareSet pawnAttacks(Side side, Square square) {
   assert(square >= 0 && square < 64);
   return _pawnAttacks[side]![square];
 }
 
 /// Gets squares attacked or defended by a bishop on [Square], given `occupied`
 /// squares.
-SquareSet bishopAttacks(Square square, SquareSet occupied) {
-  final bit = SquareSet.fromSquare(square);
+IraSquareSet bishopAttacks(Square square, IraSquareSet occupied) {
+  final bit = IraSquareSet.fromSquare(square);
   return _hyperbola(bit, _diagRange[square], occupied) ^
       _hyperbola(bit, _antiDiagRange[square], occupied);
 }
 
 /// Gets squares attacked or defended by a rook on [Square], given `occupied`
 /// squares.
-SquareSet rookAttacks(Square square, SquareSet occupied) {
+IraSquareSet rookAttacks(Square square, IraSquareSet occupied) {
   return _fileAttacks(square, occupied) ^ _rankAttacks(square, occupied);
 }
 
 /// Gets squares attacked or defended by a queen on [Square], given `occupied`
 /// squares.
-SquareSet queenAttacks(Square square, SquareSet occupied) =>
+IraSquareSet queenAttacks(Square square, IraSquareSet occupied) =>
     bishopAttacks(square, occupied) ^ rookAttacks(square, occupied);
 
 /// Gets squares attacked or defended by a `piece` on `square`, given
 /// `occupied` squares.
-SquareSet attacks(Piece piece, Square square, SquareSet occupied) {
+IraSquareSet attacks(Piece piece, Square square, IraSquareSet occupied) {
   switch (piece.role) {
     case Role.pawn:
       return pawnAttacks(piece.color, square);
@@ -60,8 +60,8 @@ SquareSet attacks(Piece piece, Square square, SquareSet occupied) {
 
 /// Gets all squares of the rank, file or diagonal with the two squares
 /// `a` and `b`, or an empty set if they are not aligned.
-SquareSet ray(Square a, Square b) {
-  final other = SquareSet.fromSquare(b);
+IraSquareSet ray(Square a, Square b) {
+  final other = IraSquareSet.fromSquare(b);
   if (_rankRange[a].isIntersected(other)) {
     return _rankRange[a].withSquare(a);
   }
@@ -74,19 +74,19 @@ SquareSet ray(Square a, Square b) {
   if (_fileRange[a].isIntersected(other)) {
     return _fileRange[a].withSquare(a);
   }
-  return SquareSet.empty;
+  return IraSquareSet.empty;
 }
 
 /// Gets all squares between `a` and `b` (bounds not included), or an empty set
 /// if they are not on the same rank, file or diagonal.
-SquareSet between(Square a, Square b) => ray(a, b)
-    .intersect(SquareSet.full.shl(a).xor(SquareSet.full.shl(b)))
+IraSquareSet between(Square a, Square b) => ray(a, b)
+    .intersect(IraSquareSet.full.shl(a).xor(IraSquareSet.full.shl(b)))
     .withoutFirst();
 
 // --
 
-SquareSet _computeRange(Square square, List<int> deltas) {
-  SquareSet range = SquareSet.empty;
+IraSquareSet _computeRange(Square square, List<int> deltas) {
+  IraSquareSet range = IraSquareSet.empty;
   for (final delta in deltas) {
     final sq = square + delta;
     if (0 <= sq &&
@@ -116,41 +116,42 @@ final _pawnAttacks = {
 };
 
 final _fileRange =
-    _tabulate((sq) => SquareSet.fromFile(squareFile(sq)).withoutSquare(sq));
+    _tabulate((sq) => IraSquareSet.fromFile(squareFile(sq)).withoutSquare(sq));
 final _rankRange =
-    _tabulate((sq) => SquareSet.fromRank(squareRank(sq)).withoutSquare(sq));
+    _tabulate((sq) => IraSquareSet.fromRank(squareRank(sq)).withoutSquare(sq));
 final _diagRange = _tabulate((sq) {
   final shift = 8 * (squareRank(sq) - squareFile(sq));
   return (shift >= 0
-          ? SquareSet.diagonal.shl(shift)
-          : SquareSet.diagonal.shr(-shift))
+          ? IraSquareSet.diagonal.shl(shift)
+          : IraSquareSet.diagonal.shr(-shift))
       .withoutSquare(sq);
 });
 final _antiDiagRange = _tabulate((sq) {
   final shift = 8 * (squareRank(sq) + squareFile(sq) - 7);
   return (shift >= 0
-          ? SquareSet.antidiagonal.shl(shift)
-          : SquareSet.antidiagonal.shr(-shift))
+          ? IraSquareSet.antidiagonal.shl(shift)
+          : IraSquareSet.antidiagonal.shr(-shift))
       .withoutSquare(sq);
 });
 
-SquareSet _hyperbola(SquareSet bit, SquareSet range, SquareSet occupied) {
-  SquareSet forward = occupied & range;
-  SquareSet reverse =
+IraSquareSet _hyperbola(
+    IraSquareSet bit, IraSquareSet range, IraSquareSet occupied) {
+  IraSquareSet forward = occupied & range;
+  IraSquareSet reverse =
       forward.flipVertical(); // Assumes no more than 1 bit per rank
   forward = forward - bit;
   reverse = reverse - bit.flipVertical();
   return (forward ^ reverse.flipVertical()) & range;
 }
 
-SquareSet _fileAttacks(Square square, SquareSet occupied) =>
-    _hyperbola(SquareSet.fromSquare(square), _fileRange[square], occupied);
+IraSquareSet _fileAttacks(Square square, IraSquareSet occupied) =>
+    _hyperbola(IraSquareSet.fromSquare(square), _fileRange[square], occupied);
 
-SquareSet _rankAttacks(Square square, SquareSet occupied) {
+IraSquareSet _rankAttacks(Square square, IraSquareSet occupied) {
   final range = _rankRange[square];
-  final bit = SquareSet.fromSquare(square);
-  SquareSet forward = occupied & range;
-  SquareSet reverse = forward.mirrorHorizontal();
+  final bit = IraSquareSet.fromSquare(square);
+  IraSquareSet forward = occupied & range;
+  IraSquareSet reverse = forward.mirrorHorizontal();
   forward = forward - bit;
   reverse = reverse - bit.mirrorHorizontal();
   return (forward ^ reverse.mirrorHorizontal()) & range;

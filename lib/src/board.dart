@@ -21,89 +21,89 @@ class Board {
   });
 
   /// All occupied squares.
-  final SquareSet occupied;
+  final IraSquareSet occupied;
 
   /// All squares occupied by pieces known to be promoted.
   ///
   /// This information is relevant in chess variants like [Crazyhouse].
-  final SquareSet promoted;
+  final IraSquareSet promoted;
 
   /// All squares occupied by white pieces.
-  final SquareSet white;
+  final IraSquareSet white;
 
   /// All squares occupied by black pieces.
-  final SquareSet black;
+  final IraSquareSet black;
 
   /// All squares occupied by pawns.
-  final SquareSet pawns;
+  final IraSquareSet pawns;
 
   /// All squares occupied by knights.
-  final SquareSet knights;
+  final IraSquareSet knights;
 
   /// All squares occupied by bishops.
-  final SquareSet bishops;
+  final IraSquareSet bishops;
 
   /// All squares occupied by rooks.
-  final SquareSet rooks;
+  final IraSquareSet rooks;
 
   /// All squares occupied by queens.
-  final SquareSet queens;
+  final IraSquareSet queens;
 
   /// All squares occupied by kings.
-  final SquareSet kings;
+  final IraSquareSet kings;
 
   /// Standard chess starting position.
   static const standard = Board(
-    occupied: SquareSet(0xffff00000000ffff),
-    promoted: SquareSet.empty,
-    white: SquareSet(0xffff),
-    black: SquareSet(0xffff000000000000),
-    pawns: SquareSet(0x00ff00000000ff00),
-    knights: SquareSet(0x4200000000000042),
-    bishops: SquareSet(0x2400000000000024),
-    rooks: SquareSet.corners,
-    queens: SquareSet(0x0800000000000008),
-    kings: SquareSet(0x1000000000000010),
+    occupied: IraSquareSet(0xffff00000000ffff),
+    promoted: IraSquareSet.empty,
+    white: IraSquareSet(0xffff),
+    black: IraSquareSet(0xffff000000000000),
+    pawns: IraSquareSet(0x00ff00000000ff00),
+    knights: IraSquareSet(0x4200000000000042),
+    bishops: IraSquareSet(0x2400000000000024),
+    rooks: IraSquareSet.corners,
+    queens: IraSquareSet(0x0800000000000008),
+    kings: IraSquareSet(0x1000000000000010),
   );
 
   /// Racing Kings start position
   static const racingKings = Board(
-      occupied: SquareSet(0xffff),
-      promoted: SquareSet.empty,
-      white: SquareSet(0xf0f0),
-      black: SquareSet(0x0f0f),
-      pawns: SquareSet.empty,
-      knights: SquareSet(0x1818),
-      bishops: SquareSet(0x2424),
-      rooks: SquareSet(0x4242),
-      queens: SquareSet(0x0081),
-      kings: SquareSet(0x8100));
+      occupied: IraSquareSet(0xffff),
+      promoted: IraSquareSet.empty,
+      white: IraSquareSet(0xf0f0),
+      black: IraSquareSet(0x0f0f),
+      pawns: IraSquareSet.empty,
+      knights: IraSquareSet(0x1818),
+      bishops: IraSquareSet(0x2424),
+      rooks: IraSquareSet(0x4242),
+      queens: IraSquareSet(0x0081),
+      kings: IraSquareSet(0x8100));
 
   /// Horde start Positioin
   static const horde = Board(
-    occupied: SquareSet(0xffff0066ffffffff),
-    promoted: SquareSet.empty,
-    white: SquareSet(0x00000066ffffffff),
-    black: SquareSet(0xffff000000000000),
-    pawns: SquareSet(0x00ff0066ffffffff),
-    knights: SquareSet(0x4200000000000000),
-    bishops: SquareSet(0x2400000000000000),
-    rooks: SquareSet(0x8100000000000000),
-    queens: SquareSet(0x0800000000000000),
-    kings: SquareSet(0x1000000000000000),
+    occupied: IraSquareSet(0xffff0066ffffffff),
+    promoted: IraSquareSet.empty,
+    white: IraSquareSet(0x00000066ffffffff),
+    black: IraSquareSet(0xffff000000000000),
+    pawns: IraSquareSet(0x00ff0066ffffffff),
+    knights: IraSquareSet(0x4200000000000000),
+    bishops: IraSquareSet(0x2400000000000000),
+    rooks: IraSquareSet(0x8100000000000000),
+    queens: IraSquareSet(0x0800000000000000),
+    kings: IraSquareSet(0x1000000000000000),
   );
 
   static const empty = Board(
-    occupied: SquareSet.empty,
-    promoted: SquareSet.empty,
-    white: SquareSet.empty,
-    black: SquareSet.empty,
-    pawns: SquareSet.empty,
-    knights: SquareSet.empty,
-    bishops: SquareSet.empty,
-    rooks: SquareSet.empty,
-    queens: SquareSet.empty,
-    kings: SquareSet.empty,
+    occupied: IraSquareSet.empty,
+    promoted: IraSquareSet.empty,
+    white: IraSquareSet.empty,
+    black: IraSquareSet.empty,
+    pawns: IraSquareSet.empty,
+    knights: IraSquareSet.empty,
+    bishops: IraSquareSet.empty,
+    rooks: IraSquareSet.empty,
+    queens: IraSquareSet.empty,
+    kings: IraSquareSet.empty,
   );
 
   /// Parse the board part of a FEN string and returns a Board.
@@ -138,8 +138,8 @@ class Board {
     return board;
   }
 
-  SquareSet get rooksAndQueens => rooks | queens;
-  SquareSet get bishopsAndQueens => bishops | queens;
+  IraSquareSet get rooksAndQueens => rooks | queens;
+  IraSquareSet get bishopsAndQueens => bishops | queens;
 
   /// Board part of the Forsyth-Edwards-Notation.
   String get fen {
@@ -182,16 +182,16 @@ class Board {
   IMap<Role, int> materialCount(Side side) => IMap.fromEntries(
       Role.values.map((role) => MapEntry(role, piecesOf(side, role).size)));
 
-  /// A [SquareSet] of all the pieces matching this [Side] and [Role].
-  SquareSet piecesOf(Side side, Role role) {
+  /// A [IraSquareSet] of all the pieces matching this [Side] and [Role].
+  IraSquareSet piecesOf(Side side, Role role) {
     return bySide(side) & byRole(role);
   }
 
   /// Gets all squares occupied by [Side].
-  SquareSet bySide(Side side) => side == Side.white ? white : black;
+  IraSquareSet bySide(Side side) => side == Side.white ? white : black;
 
   /// Gets all squares occupied by [Role].
-  SquareSet byRole(Role role) {
+  IraSquareSet byRole(Role role) {
     switch (role) {
       case Role.pawn:
         return pawns;
@@ -209,7 +209,7 @@ class Board {
   }
 
   /// Gets all squares occupied by [Piece].
-  SquareSet byPiece(Piece piece) {
+  IraSquareSet byPiece(Piece piece) {
     return bySide(piece.color) & byRole(piece.role);
   }
 
@@ -251,7 +251,8 @@ class Board {
   }
 
   /// Finds the squares who are attacking `square` by the `attacker` [Side].
-  SquareSet attacksTo(Square square, Side attacker, {SquareSet? occupied}) =>
+  IraSquareSet attacksTo(Square square, Side attacker,
+          {IraSquareSet? occupied}) =>
       bySide(attacker).intersect(rookAttacks(square, occupied ?? this.occupied)
           .intersect(rooksAndQueens)
           .union(bishopAttacks(square, occupied ?? this.occupied)
@@ -302,21 +303,21 @@ class Board {
         : this;
   }
 
-  Board withPromoted(SquareSet promoted) {
+  Board withPromoted(IraSquareSet promoted) {
     return _copyWith(promoted: promoted);
   }
 
   Board _copyWith({
-    SquareSet? occupied,
-    SquareSet? promoted,
-    SquareSet? white,
-    SquareSet? black,
-    SquareSet? pawns,
-    SquareSet? knights,
-    SquareSet? bishops,
-    SquareSet? rooks,
-    SquareSet? queens,
-    SquareSet? kings,
+    IraSquareSet? occupied,
+    IraSquareSet? promoted,
+    IraSquareSet? white,
+    IraSquareSet? black,
+    IraSquareSet? pawns,
+    IraSquareSet? knights,
+    IraSquareSet? bishops,
+    IraSquareSet? rooks,
+    IraSquareSet? queens,
+    IraSquareSet? kings,
   }) {
     return Board(
       occupied: occupied ?? this.occupied,

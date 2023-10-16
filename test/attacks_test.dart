@@ -3,7 +3,7 @@ import 'package:dartchess/dartchess.dart';
 
 void main() {
   test('King attacks', () {
-    final attacks = makeSquareSet('''
+    final attacks = makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
@@ -17,7 +17,7 @@ void main() {
   });
 
   test('Knight attacks', () {
-    final attacks = makeSquareSet('''
+    final attacks = makeIraSquareSet('''
 . . . . . . . .
 . . 1 . 1 . . .
 . 1 . . . 1 . .
@@ -31,7 +31,7 @@ void main() {
   });
 
   test('White pawn attacks', () {
-    final attacks = makeSquareSet('''
+    final attacks = makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
@@ -45,7 +45,7 @@ void main() {
   });
 
   test('Black pawn attacks', () {
-    final attacks = makeSquareSet('''
+    final attacks = makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
@@ -59,7 +59,7 @@ void main() {
   });
 
   test('bishop attacks, empty board', () {
-    expect(bishopAttacks(27, SquareSet.empty), makeSquareSet('''
+    expect(bishopAttacks(27, IraSquareSet.empty), makeIraSquareSet('''
 . . . . . . . 1
 1 . . . . . 1 .
 . 1 . . . 1 . .
@@ -72,7 +72,7 @@ void main() {
   });
 
   test('bishop attacks, occupied board', () {
-    final occupied = makeSquareSet('''
+    final occupied = makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . 1 . .
@@ -82,7 +82,7 @@ void main() {
 . . . . . . . .
 . . . . . . . .
 ''');
-    expect(bishopAttacks(0, occupied), makeSquareSet('''
+    expect(bishopAttacks(0, occupied), makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . 1 . .
@@ -95,7 +95,7 @@ void main() {
   });
 
   test('rook attacks, empty board', () {
-    expect(rookAttacks(10, SquareSet.empty), makeSquareSet('''
+    expect(rookAttacks(10, IraSquareSet.empty), makeIraSquareSet('''
 . . 1 . . . . .
 . . 1 . . . . .
 . . 1 . . . . .
@@ -108,7 +108,7 @@ void main() {
   });
 
   test('rook attacks, occupied board', () {
-    final occupied = makeSquareSet('''
+    final occupied = makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . 1 . .
@@ -118,7 +118,7 @@ void main() {
 . . 1 . . . . .
 . . . . . . . .
 ''');
-    expect(rookAttacks(42, occupied), makeSquareSet('''
+    expect(rookAttacks(42, occupied), makeIraSquareSet('''
 . . 1 . . . . .
 . . 1 . . . . .
 1 1 . 1 1 1 . .
@@ -131,7 +131,7 @@ void main() {
   });
 
   test('queen attacks, empty board', () {
-    expect(queenAttacks(37, SquareSet.empty), makeSquareSet('''
+    expect(queenAttacks(37, IraSquareSet.empty), makeIraSquareSet('''
 . . 1 . . 1 . .
 . . . 1 . 1 . 1
 . . . . 1 1 1 .
@@ -144,7 +144,7 @@ void main() {
   });
 
   test('queen attacks, occupied board', () {
-    final occupied = makeSquareSet('''
+    final occupied = makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . 1 . . . . . .
@@ -154,7 +154,7 @@ void main() {
 . . 1 . . . . .
 . . . . . . . .
 ''');
-    expect(queenAttacks(42, occupied), makeSquareSet('''
+    expect(queenAttacks(42, occupied), makeIraSquareSet('''
 1 . 1 . 1 . . .
 . 1 1 1 . . . .
 . 1 . 1 1 1 1 1

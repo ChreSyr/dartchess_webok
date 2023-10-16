@@ -15,18 +15,18 @@ void main() {
     expect(
         Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq')
             .unmovedRooks,
-        SquareSet.corners);
+        IraSquareSet.corners);
     expect(
         Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w -')
             .unmovedRooks,
-        SquareSet.empty);
+        IraSquareSet.empty);
   });
 
   test('parse castling fen, shredder notation', () {
     expect(
         Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w HAha')
             .unmovedRooks,
-        SquareSet.corners);
+        IraSquareSet.corners);
   });
 
   test('invalid castling fen', () {
@@ -52,7 +52,7 @@ void main() {
     expect(setup, Setup.standard);
     expect(setup.board, Board.standard);
     expect(setup.turn, Side.white);
-    expect(setup.unmovedRooks, SquareSet.corners);
+    expect(setup.unmovedRooks, IraSquareSet.corners);
     expect(setup.epSquare, null);
     expect(setup.halfmoves, 0);
     expect(setup.fullmoves, 1);
@@ -62,7 +62,7 @@ void main() {
     final setup = Setup.parseFen(kInitialBoardFEN);
     expect(setup.board, Board.standard);
     expect(setup.turn, Side.white);
-    expect(setup.unmovedRooks, SquareSet.empty);
+    expect(setup.unmovedRooks, IraSquareSet.empty);
     expect(setup.epSquare, null);
     expect(setup.halfmoves, 0);
     expect(setup.fullmoves, 1);

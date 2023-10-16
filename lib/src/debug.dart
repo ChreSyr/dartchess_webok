@@ -4,11 +4,12 @@ import './position.dart';
 import './square_set.dart';
 import './utils.dart';
 
-/// Takes a string and returns a SquareSet. Useful for debugging/testing purposes.
+/// Takes a string and returns a IraSquareSet. Useful for debugging/testing purposes.
 ///
 /// Example:
 /// ```dart
 /// final str = '''
+/// . . . . . . . .
 /// . 1 1 1 . . . .
 /// . 1 . 1 . . . .
 /// . 1 . . 1 . . .
@@ -17,12 +18,13 @@ import './utils.dart';
 /// . 1 . . . 1 . .
 /// . 1 . . . 1 . .
 /// . 1 . . 1 . . .
+/// . 1 1 1 . . . .
 /// '''
-/// final squareSet = makeSquareSet(str);
-/// // SquareSet(0x0E0A12221E222212)
+/// final squareSet = makeIraSquareSet(str);
+/// // IraSquareSet(0x000E0A12221E2222120E)
 /// ```
-SquareSet makeSquareSet(String rep) {
-  SquareSet ret = SquareSet.empty;
+IraSquareSet makeIraSquareSet(String rep) {
+  IraSquareSet ret = IraSquareSet.empty;
   final table = rep
       .split('\n')
       .where((l) => l.isNotEmpty)
@@ -42,7 +44,7 @@ SquareSet makeSquareSet(String rep) {
 }
 
 /// Prints the square set as a human readable string format
-String humanReadableSquareSet(SquareSet sq) {
+String humanReadableIraSquareSet(IraSquareSet sq) {
   final buffer = StringBuffer();
   for (int y = 7; y >= 0; y--) {
     for (int x = 0; x < 8; x++) {
@@ -90,7 +92,7 @@ int perft(Position pos, int depth, {bool shouldLog = false}) {
       final to = entry.value;
       nodes += to.size;
       if (pos.board.pawns.has(from)) {
-        final backrank = SquareSet.backrankOf(pos.turn.opposite);
+        final backrank = IraSquareSet.backrankOf(pos.turn.opposite);
         nodes += to.intersect(backrank).size * (promotionRoles.length - 1);
       }
     }
@@ -118,7 +120,7 @@ int perft(Position pos, int depth, {bool shouldLog = false}) {
       for (final role in Role.values) {
         if (pos.pockets!.of(pos.turn, role) > 0) {
           for (final to in (role == Role.pawn
-                  ? legalDrops.diff(SquareSet.backranks)
+                  ? legalDrops.diff(IraSquareSet.backranks)
                   : legalDrops)
               .squares) {
             final drop = DropMove(role: role, to: to);

@@ -20,7 +20,7 @@ class Setup {
   final Side turn;
 
   /// Unmoved rooks positions used to determine castling rights.
-  final SquareSet unmovedRooks;
+  final IraSquareSet unmovedRooks;
 
   /// En passant target square.
   ///
@@ -50,7 +50,7 @@ class Setup {
   static const standard = Setup(
     board: Board.standard,
     turn: Side.white,
-    unmovedRooks: SquareSet.corners,
+    unmovedRooks: IraSquareSet.corners,
     halfmoves: 0,
     fullmoves: 1,
   );
@@ -108,9 +108,9 @@ class Setup {
     }
 
     // Castling
-    SquareSet unmovedRooks;
+    IraSquareSet unmovedRooks;
     if (parts.isEmpty) {
-      unmovedRooks = SquareSet.empty;
+      unmovedRooks = IraSquareSet.empty;
     } else {
       final castlingPart = parts.removeAt(0);
       unmovedRooks = _parseCastlingFen(board, castlingPart);
@@ -306,8 +306,8 @@ Pockets _parsePockets(String pocketPart) {
   }
 }
 
-SquareSet _parseCastlingFen(Board board, String castlingPart) {
-  SquareSet unmovedRooks = SquareSet.empty;
+IraSquareSet _parseCastlingFen(Board board, String castlingPart) {
+  IraSquareSet unmovedRooks = IraSquareSet.empty;
   if (castlingPart == '-') {
     return unmovedRooks;
   }
@@ -315,7 +315,7 @@ SquareSet _parseCastlingFen(Board board, String castlingPart) {
     final c = castlingPart[i];
     final lower = c.toLowerCase();
     final color = c == lower ? Side.black : Side.white;
-    final backrankMask = SquareSet.backrankOf(color);
+    final backrankMask = IraSquareSet.backrankOf(color);
     final backrank = backrankMask & board.bySide(color);
 
     Iterable<Square> candidates;
@@ -325,7 +325,7 @@ SquareSet _parseCastlingFen(Board board, String castlingPart) {
       candidates = backrank.squaresReversed;
     } else if ('a'.compareTo(lower) <= 0 && lower.compareTo('h') <= 0) {
       candidates =
-          (SquareSet.fromFile(lower.codeUnitAt(0) - 'a'.codeUnitAt(0)) &
+          (IraSquareSet.fromFile(lower.codeUnitAt(0) - 'a'.codeUnitAt(0)) &
                   backrank)
               .squares;
     } else {
@@ -339,8 +339,8 @@ SquareSet _parseCastlingFen(Board board, String castlingPart) {
       }
     }
   }
-  if ((const SquareSet.fromRank(0) & unmovedRooks).size > 2 ||
-      (const SquareSet.fromRank(7) & unmovedRooks).size > 2) {
+  if ((const IraSquareSet.fromRank(0) & unmovedRooks).size > 2 ||
+      (const IraSquareSet.fromRank(7) & unmovedRooks).size > 2) {
     throw const FenError('ERR_CASTLING');
   }
   return unmovedRooks;
@@ -358,10 +358,10 @@ String _makePockets(Pockets pockets) {
   return '[${wPart.toUpperCase()}$bPart]';
 }
 
-String _makeCastlingFen(Board board, SquareSet unmovedRooks) {
+String _makeCastlingFen(Board board, IraSquareSet unmovedRooks) {
   final buffer = StringBuffer();
   for (final color in Side.values) {
-    final backrank = SquareSet.backrankOf(color);
+    final backrank = IraSquareSet.backrankOf(color);
     final king = board.kingOf(color);
     final candidates =
         board.byPiece(Piece(color: color, role: Role.rook)) & backrank;

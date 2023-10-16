@@ -5,107 +5,114 @@ import './models.dart';
 /// rank-file (LERF) mapping.
 ///
 /// ```
-///  8 | 56 57 58 59 60 61 62 63
-///  7 | 48 49 50 51 52 53 54 55
-///  6 | 40 41 42 43 44 45 46 47
-///  5 | 32 33 34 35 36 37 38 39
-///  4 | 24 25 26 27 28 29 30 31
-///  3 | 16 17 18 19 20 21 22 23
-///  2 | 8  9  10 11 12 13 14 15
-///  1 | 0  1  2  3  4  5  6  7
+///  9 | 72 73 74 75 76 77 78 79
+///  8 | 64 65 66 67 68 69 70 71
+///  7 | 56 57 58 59 60 61 62 63
+///  6 | 48 49 50 51 52 53 54 55
+///  5 | 40 41 42 43 44 45 46 47
+///  4 | 32 33 34 35 36 37 38 39
+///  3 | 24 25 26 27 28 29 30 31
+///  2 | 16 17 18 19 20 21 22 23
+///  1 | 8  9  10 11 12 13 14 15
+///  0 | 0  1  2  3  4  5  6  7
 ///    -------------------------
 ///      a  b  c  d  e  f  g  h
 /// ```
 @immutable
-class SquareSet {
-  /// Creates a [SquareSet] with the provided 64bit integer value.
-  const SquareSet(this.value);
+class IraSquareSet {
+  /// Creates a [IraSquareSet] with the provided 64bit integer value.
+  const IraSquareSet(this.value);
 
-  /// Creates a [SquareSet] with a single [Square].
-  const SquareSet.fromSquare(Square square)
+  /// Creates a [IraSquareSet] with a single [Square].
+  const IraSquareSet.fromSquare(Square square)
       : value = 1 << square,
         assert(square >= 0 && square < 64);
 
-  /// Creates a [SquareSet] from several [Square]s.
-  SquareSet.fromSquares(Iterable<Square> squares)
+  /// Creates a [IraSquareSet] from several [Square]s.
+  IraSquareSet.fromSquares(Iterable<Square> squares)
       : value = squares
             .map((square) => 1 << square)
             .fold(0, (left, right) => left | right);
 
-  /// Create a [SquareSet] containing all squares of the given rank.
-  const SquareSet.fromRank(int rank)
+  /// Create a [IraSquareSet] containing all squares of the given rank.
+  const IraSquareSet.fromRank(int rank)
       : value = 0xff << (8 * rank),
         assert(rank >= 0 && rank < 8);
 
-  /// Create a [SquareSet] containing all squares of the given file.
-  const SquareSet.fromFile(int file)
+  /// Create a [IraSquareSet] containing all squares of the given file.
+  const IraSquareSet.fromFile(int file)
       : value = 0x0101010101010101 << file,
         assert(file >= 0 && file < 8);
 
-  /// Create a [SquareSet] containing all squares of the given backrank [Side].
-  const SquareSet.backrankOf(Side side)
+  /// Create a [IraSquareSet] containing all squares of the given backrank [Side].
+  const IraSquareSet.backrankOf(Side side)
       : value = side == Side.white ? 0xff : 0xff00000000000000;
 
   /// 64 bit integer representing the square set.
   final int value;
 
-  static const empty = SquareSet(0);
-  static const full = SquareSet(0xffffffffffffffff);
-  static const lightSquares = SquareSet(0x55AA55AA55AA55AA);
-  static const darkSquares = SquareSet(0xAA55AA55AA55AA55);
-  static const diagonal = SquareSet(0x8040201008040201);
-  static const antidiagonal = SquareSet(0x0102040810204080);
-  static const corners = SquareSet(0x8100000000000081);
-  static const center = SquareSet(0x0000001818000000);
-  static const backranks = SquareSet(0xff000000000000ff);
+  static const empty = IraSquareSet(0);
+  static const full = IraSquareSet(0xffffffffffffffff);
+  static const lightSquares = IraSquareSet(0x55AA55AA55AA55AA);
+  static const darkSquares = IraSquareSet(0xAA55AA55AA55AA55);
+  static const diagonal = IraSquareSet(0x8040201008040201);
+  static const antidiagonal = IraSquareSet(0x0102040810204080);
+  static const corners = IraSquareSet(0x8100000000000081);
+  static const center = IraSquareSet(0x0000001818000000);
+  static const backranks = IraSquareSet(0xff000000000000ff);
 
   /// Bitwise right shift
-  SquareSet shr(int shift) {
-    if (shift >= 64) return SquareSet.empty;
-    if (shift > 0) return SquareSet(value >>> shift);
+  IraSquareSet shr(int shift) {
+    if (shift >= 64) return IraSquareSet.empty;
+    if (shift > 0) return IraSquareSet(value >>> shift);
     return this;
   }
 
   /// Bitwise left shift
-  SquareSet shl(int shift) {
-    if (shift >= 64) return SquareSet.empty;
-    if (shift > 0) return SquareSet(value << shift);
+  IraSquareSet shl(int shift) {
+    if (shift >= 64) return IraSquareSet.empty;
+    if (shift > 0) return IraSquareSet(value << shift);
     return this;
   }
 
-  SquareSet xor(SquareSet other) => SquareSet(value ^ other.value);
-  SquareSet operator ^(SquareSet other) => SquareSet(value ^ other.value);
+  IraSquareSet xor(IraSquareSet other) => IraSquareSet(value ^ other.value);
+  IraSquareSet operator ^(IraSquareSet other) =>
+      IraSquareSet(value ^ other.value);
 
-  SquareSet union(SquareSet other) => SquareSet(value | other.value);
-  SquareSet operator |(SquareSet other) => SquareSet(value | other.value);
+  IraSquareSet union(IraSquareSet other) => IraSquareSet(value | other.value);
+  IraSquareSet operator |(IraSquareSet other) =>
+      IraSquareSet(value | other.value);
 
-  SquareSet intersect(SquareSet other) => SquareSet(value & other.value);
-  SquareSet operator &(SquareSet other) => SquareSet(value & other.value);
+  IraSquareSet intersect(IraSquareSet other) =>
+      IraSquareSet(value & other.value);
+  IraSquareSet operator &(IraSquareSet other) =>
+      IraSquareSet(value & other.value);
 
-  SquareSet minus(SquareSet other) => SquareSet(value - other.value);
-  SquareSet operator -(SquareSet other) => SquareSet(value - other.value);
+  IraSquareSet minus(IraSquareSet other) => IraSquareSet(value - other.value);
+  IraSquareSet operator -(IraSquareSet other) =>
+      IraSquareSet(value - other.value);
 
-  SquareSet complement() => SquareSet(~value);
+  IraSquareSet complement() => IraSquareSet(~value);
 
-  SquareSet diff(SquareSet other) => SquareSet(value & ~other.value);
+  IraSquareSet diff(IraSquareSet other) => IraSquareSet(value & ~other.value);
 
-  SquareSet flipVertical() {
+  IraSquareSet flipVertical() {
     const k1 = 0x00FF00FF00FF00FF;
     const k2 = 0x0000FFFF0000FFFF;
     int x = ((value >>> 8) & k1) | ((value & k1) << 8);
     x = ((x >>> 16) & k2) | ((x & k2) << 16);
     x = (x >>> 32) | (x << 32);
-    return SquareSet(x);
+    return IraSquareSet(x);
   }
 
-  SquareSet mirrorHorizontal() {
+  IraSquareSet mirrorHorizontal() {
     const k1 = 0x5555555555555555;
     const k2 = 0x3333333333333333;
     const k4 = 0x0f0f0f0f0f0f0f0f;
     int x = ((value >>> 1) & k1) | ((value & k1) << 1);
     x = ((x >>> 2) & k2) | ((x & k2) << 2);
     x = ((x >>> 4) & k4) | ((x & k4) << 4);
-    return SquareSet(x);
+    return IraSquareSet(x);
   }
 
   int get size => _popcnt64(value);
@@ -125,26 +132,26 @@ class SquareSet {
     return value & (1 << square) != 0;
   }
 
-  bool isIntersected(SquareSet other) => intersect(other).isNotEmpty;
-  bool isDisjoint(SquareSet other) => intersect(other).isEmpty;
+  bool isIntersected(IraSquareSet other) => intersect(other).isNotEmpty;
+  bool isDisjoint(IraSquareSet other) => intersect(other).isEmpty;
 
-  SquareSet withSquare(Square square) {
+  IraSquareSet withSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return SquareSet(value | (1 << square));
+    return IraSquareSet(value | (1 << square));
   }
 
-  SquareSet withoutSquare(Square square) {
+  IraSquareSet withoutSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return SquareSet(value & ~(1 << square));
+    return IraSquareSet(value & ~(1 << square));
   }
 
   /// Removes [Square] if present, or put it if absent.
-  SquareSet toggleSquare(Square square) {
+  IraSquareSet toggleSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return SquareSet(value ^ (1 << square));
+    return IraSquareSet(value ^ (1 << square));
   }
 
-  SquareSet withoutFirst() {
+  IraSquareSet withoutFirst() {
     final f = first;
     return f != null ? withoutSquare(f) : empty;
   }
@@ -152,7 +159,7 @@ class SquareSet {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is SquareSet &&
+        other is IraSquareSet &&
             other.runtimeType == runtimeType &&
             other.value == value;
   }
@@ -177,9 +184,9 @@ class SquareSet {
         .padLeft(8, '0');
     final stringVal = '$first$last';
     if (stringVal == '0000000000000000') {
-      return 'SquareSet(0)';
+      return 'IraSquareSet(0)';
     }
-    return 'SquareSet(0x$first$last)';
+    return 'IraSquareSet(0x$first$last)';
   }
 
   Iterable<Square> _iterateSquares() sync* {

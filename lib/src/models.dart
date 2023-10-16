@@ -69,7 +69,7 @@ enum Role {
 
 /// Number between 0 and 63 included representing a square on the board.
 ///
-/// See [SquareSet] to see how the mapping looks like.
+/// See [IraSquareSet] to see how the mapping looks like.
 typedef Square = int;
 
 /// All the squares on the board.
