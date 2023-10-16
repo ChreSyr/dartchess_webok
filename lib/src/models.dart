@@ -149,12 +149,10 @@ class Piece {
   const Piece({
     required this.color,
     required this.role,
-    this.promoted = false,
   });
 
   final Side color;
   final Role role;
-  final bool promoted;
 
   static Piece? fromChar(String ch) {
     final role = Role.fromChar(ch);
@@ -168,19 +166,16 @@ class Piece {
   String get fenChar {
     String r = role.char;
     if (color == Side.white) r = r.toUpperCase();
-    if (promoted) r += '~';
     return r;
   }
 
   Piece copyWith({
     Side? color,
     Role? role,
-    bool? promoted,
   }) {
     return Piece(
       color: color ?? this.color,
       role: role ?? this.role,
-      promoted: promoted ?? this.promoted,
     );
   }
 
@@ -195,12 +190,11 @@ class Piece {
         other is Piece &&
             other.runtimeType == runtimeType &&
             color == other.color &&
-            role == other.role &&
-            promoted == other.promoted;
+            role == other.role;
   }
 
   @override
-  int get hashCode => Object.hash(color, role, promoted);
+  int get hashCode => Object.hash(color, role);
 
   static const whitePawn = Piece(color: Side.white, role: Role.pawn);
   static const whiteKnight = Piece(color: Side.white, role: Role.knight);

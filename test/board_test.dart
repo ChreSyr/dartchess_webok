@@ -49,12 +49,6 @@ void main() {
     expect(board, Board.standard);
   });
 
-  test('parse board fen, promoted piece', () {
-    final board =
-        Board.parseFen('rQ~q1kb1r/pp2pppp/2p5/8/3P1Bb1/4PN2/PPP3PP/R2QKB1R');
-    expect(board.promoted.squares.length, 1);
-  });
-
   test('invalid board fen', () {
     expect(() => Board.parseFen('4k2r/8/8/8/8/RR2K2R'),
         throwsA(predicate((e) => e is FenError && e.message == 'ERR_BOARD')));

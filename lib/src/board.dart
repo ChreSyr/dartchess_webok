@@ -9,7 +9,6 @@ import './attacks.dart';
 class Board {
   const Board({
     required this.occupied,
-    required this.promoted,
     required this.white,
     required this.black,
     required this.pawns,
@@ -22,12 +21,6 @@ class Board {
 
   /// All occupied squares.
   final IraSquareSet occupied;
-
-  /// All squares occupied by pieces known to be promoted.
-  ///
-  /// This information is relevant in chess variants like [Crazyhouse].
-  /// TODO : remove
-  final IraSquareSet promoted;
 
   /// All squares occupied by white pieces.
   final IraSquareSet white;
@@ -56,7 +49,6 @@ class Board {
   /// Standard chess starting position.
   static const standard = Board(
     occupied: IraSquareSet(0xffff00000000ffff),
-    promoted: IraSquareSet.empty,
     white: IraSquareSet(0xffff),
     black: IraSquareSet(0xffff000000000000),
     pawns: IraSquareSet(0x00ff00000000ff00),
@@ -70,7 +62,6 @@ class Board {
   /// Racing Kings start position
   static const racingKings = Board(
       occupied: IraSquareSet(0xffff),
-      promoted: IraSquareSet.empty,
       white: IraSquareSet(0xf0f0),
       black: IraSquareSet(0x0f0f),
       pawns: IraSquareSet.empty,
@@ -83,7 +74,6 @@ class Board {
   /// Horde start Positioin
   static const horde = Board(
     occupied: IraSquareSet(0xffff0066ffffffff),
-    promoted: IraSquareSet.empty,
     white: IraSquareSet(0x00000066ffffffff),
     black: IraSquareSet(0xffff000000000000),
     pawns: IraSquareSet(0x00ff0066ffffffff),
@@ -96,7 +86,6 @@ class Board {
 
   static const empty = Board(
     occupied: IraSquareSet.empty,
-    promoted: IraSquareSet.empty,
     white: IraSquareSet.empty,
     black: IraSquareSet.empty,
     pawns: IraSquareSet.empty,
@@ -126,10 +115,8 @@ class Board {
         } else {
           if (file >= 8 || rank < 0) throw const FenError('ERR_BOARD');
           final square = file + rank * 8;
-          final promoted = i + 1 < boardFen.length && boardFen[i + 1] == '~';
-          final piece = _charToPiece(c, promoted);
+          final piece = _charToPiece(c);
           if (piece == null) throw const FenError('ERR_BOARD');
-          if (promoted) i++;
           board = board.setPieceAt(square, piece);
           file++;
         }
@@ -242,8 +229,7 @@ class Board {
       return null;
     }
     final role = roleAt(square)!;
-    final prom = promoted.has(square);
-    return Piece(color: side, role: role, promoted: prom);
+    return Piece(color: side, role: role);
   }
 
   /// Finds the unique king [Square] of the given [Side], if any.
@@ -266,7 +252,6 @@ class Board {
   Board setPieceAt(Square square, Piece piece) {
     return removePieceAt(square)._copyWith(
       occupied: occupied.withSquare(square),
-      promoted: piece.promoted ? promoted.withSquare(square) : null,
       white: piece.color == Side.white ? white.withSquare(square) : null,
       black: piece.color == Side.black ? black.withSquare(square) : null,
       pawns: piece.role == Role.pawn ? pawns.withSquare(square) : null,
@@ -284,7 +269,6 @@ class Board {
     return piece != null
         ? _copyWith(
             occupied: occupied.withoutSquare(square),
-            promoted: piece.promoted ? promoted.withoutSquare(square) : null,
             white:
                 piece.color == Side.white ? white.withoutSquare(square) : null,
             black:
@@ -304,13 +288,8 @@ class Board {
         : this;
   }
 
-  Board withPromoted(IraSquareSet promoted) {
-    return _copyWith(promoted: promoted);
-  }
-
   Board _copyWith({
     IraSquareSet? occupied,
-    IraSquareSet? promoted,
     IraSquareSet? white,
     IraSquareSet? black,
     IraSquareSet? pawns,
@@ -322,7 +301,6 @@ class Board {
   }) {
     return Board(
       occupied: occupied ?? this.occupied,
-      promoted: promoted ?? this.promoted,
       white: white ?? this.white,
       black: black ?? this.black,
       pawns: pawns ?? this.pawns,
@@ -342,7 +320,6 @@ class Board {
     return identical(this, other) ||
         other is Board &&
             other.occupied == occupied &&
-            other.promoted == promoted &&
             other.white == white &&
             other.black == black &&
             other.pawns == pawns &&
@@ -354,17 +331,18 @@ class Board {
   }
 
   @override
-  int get hashCode => Object.hash(occupied, promoted, white, black, pawns,
+  int get hashCode => Object.hash(
+      occupied, white, black, pawns,
       knights, bishops, rooks, queens, kings);
 }
 
-Piece? _charToPiece(String ch, bool promoted) {
+Piece? _charToPiece(String ch) {
   final role = Role.fromChar(ch);
   if (role != null) {
     return Piece(
         role: role,
         color: ch == ch.toLowerCase() ? Side.black : Side.white,
-        promoted: promoted);
+    );
   }
   return null;
 }

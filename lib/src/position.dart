@@ -485,7 +485,7 @@ abstract class Position<T extends Position<T>> {
 
         if (castlingSide == null) {
           final newPiece = prom != null
-              ? piece.copyWith(role: prom, promoted: false)
+              ? piece.copyWith(role: prom)
               : piece;
           newBoard = newBoard.setPieceAt(to, newPiece);
         }
