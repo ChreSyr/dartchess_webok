@@ -8,7 +8,7 @@ import './board.dart';
 import './setup.dart';
 import './utils.dart';
 
-/// A base class for playable chess or chess variant positions.
+/// A base class for playable chess positions.
 ///
 /// See [Iratus] for a concrete implementation of standard rules.
 @immutable
@@ -84,12 +84,6 @@ abstract class Position<T extends Position<T>> {
     }
   }
 
-  /// Checks if the game is over due to a special variant end condition.
-  bool get isVariantEnd;
-
-  /// Tests special variant winning, losing and drawing conditions.
-  Outcome? get variantOutcome;
-
   /// Gets the FEN string of this position.
   ///
   /// Contrary to the FEN given by [Setup], this should always be a legal
@@ -113,21 +107,19 @@ abstract class Position<T extends Position<T>> {
 
   /// Tests if the game is over.
   bool get isGameOver =>
-      isVariantEnd || isInsufficientMaterial || !hasSomeLegalMoves;
+      isInsufficientMaterial || !hasSomeLegalMoves;
 
   /// Tests for checkmate.
   bool get isCheckmate =>
-      !isVariantEnd && checkers.isNotEmpty && !hasSomeLegalMoves;
+      checkers.isNotEmpty && !hasSomeLegalMoves;
 
   /// Tests for stalemate.
   bool get isStalemate =>
-      !isVariantEnd && checkers.isEmpty && !hasSomeLegalMoves;
+      checkers.isEmpty && !hasSomeLegalMoves;
 
   /// The outcome of the game, or `null` if the game is not over.
   Outcome? get outcome {
-    if (variantOutcome != null) {
-      return variantOutcome;
-    } else if (isCheckmate) {
+    if (isCheckmate) {
       return Outcome(winner: turn.opposite);
     } else if (isInsufficientMaterial || isStalemate) {
       return Outcome.draw;
@@ -152,7 +144,6 @@ abstract class Position<T extends Position<T>> {
   /// Gets all the legal moves of this position.
   IMap<Square, IraSquareSet> get legalMoves {
     final context = _makeContext();
-    if (context.isVariantEnd) return IMap(const {});
     return IMap({
       for (final s in board.bySide(turn).squares)
         s: _legalMovesOf(s, context: context)
@@ -742,7 +733,6 @@ abstract class Position<T extends Position<T>> {
   /// calling this method several times.
   IraSquareSet _legalMovesOf(Square square, {_Context? context}) {
     final ctx = context ?? _makeContext();
-    if (ctx.isVariantEnd) return IraSquareSet.empty;
     final piece = board.pieceAt(square);
     if (piece == null || piece.color != turn) return IraSquareSet.empty;
 
@@ -815,14 +805,12 @@ abstract class Position<T extends Position<T>> {
     final king = board.kingOf(turn);
     if (king == null) {
       return _Context(
-          isVariantEnd: isVariantEnd,
           mustCapture: false,
           king: king,
           blockers: IraSquareSet.empty,
           checkers: IraSquareSet.empty);
     }
     return _Context(
-      isVariantEnd: isVariantEnd,
       mustCapture: false,
       king: king,
       blockers: _sliderBlockers(king),
@@ -935,12 +923,6 @@ class Iratus extends Position<Iratus> {
   const Iratus._initial() : super._initial();
 
   static const initial = Iratus._initial();
-
-  @override
-  bool get isVariantEnd => false; // TODO : remove
-
-  @override
-  Outcome? get variantOutcome => null;
 
   /// Set up a playable [Iratus] position.
   ///
@@ -1318,28 +1300,24 @@ class Castles {
 @immutable
 class _Context {
   const _Context({
-    required this.isVariantEnd,
     required this.king,
     required this.blockers,
     required this.checkers,
     required this.mustCapture,
   });
 
-  final bool isVariantEnd;
   final bool mustCapture;
   final Square? king;
   final IraSquareSet blockers;
   final IraSquareSet checkers;
 
   _Context copyWith({
-    bool? isVariantEnd,
     bool? mustCapture,
     Square? king,
     IraSquareSet? blockers,
     IraSquareSet? checkers,
   }) {
     return _Context(
-      isVariantEnd: isVariantEnd ?? this.isVariantEnd,
       mustCapture: mustCapture ?? this.mustCapture,
       king: king,
       blockers: blockers ?? this.blockers,

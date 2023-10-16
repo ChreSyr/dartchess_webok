@@ -291,7 +291,7 @@ class FenError implements Exception {
   const FenError(this.message);
 }
 
-/// Represents the different possible rules of chess and its variants
+/// Represents the different possible rules of chess
 enum Rules {
   chess;
 
