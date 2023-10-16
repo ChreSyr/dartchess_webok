@@ -15,7 +15,6 @@ import './utils.dart';
 abstract class Position<T extends Position<T>> {
   const Position({
     required this.board,
-    this.pockets,
     required this.turn,
     required this.castles,
     this.epSquare,
@@ -25,9 +24,6 @@ abstract class Position<T extends Position<T>> {
 
   /// Piece positions on the board.
   final Board board;
-
-  /// Pockets in chess variants like [Crazyhouse].
-  final Pockets? pockets;
 
   /// Side to move.
   final Side turn;
@@ -47,7 +43,6 @@ abstract class Position<T extends Position<T>> {
   /// Abstract const constructor to be used by subclasses.
   const Position._initial()
       : board = Board.standard,
-        pockets = null,
         turn = Side.white,
         castles = Castles.standard,
         epSquare = null,
@@ -56,7 +51,6 @@ abstract class Position<T extends Position<T>> {
 
   Position._fromSetupUnchecked(Setup setup)
       : board = setup.board,
-        pockets = setup.pockets,
         turn = setup.turn,
         castles = Castles.fromSetup(setup),
         epSquare = _validEpSquare(setup),
@@ -65,7 +59,6 @@ abstract class Position<T extends Position<T>> {
 
   Position<T> _copyWith({
     Board? board,
-    Box<Pockets?>? pockets,
     Side? turn,
     Castles? castles,
     Box<Square?>? epSquare,
@@ -104,7 +97,6 @@ abstract class Position<T extends Position<T>> {
   String get fen {
     return Setup(
       board: board,
-      pockets: pockets,
       turn: turn,
       unmovedRooks: castles.unmovedRooks,
       epSquare: _legalEpSquare(),
@@ -218,14 +210,6 @@ abstract class Position<T extends Position<T>> {
         }
         final legalMoves = _legalMovesOf(f);
         return legalMoves.has(t) || legalMoves.has(normalizeMove(move).to);
-      case DropMove(to: final t, role: final r):
-        if (pockets == null || pockets!.of(turn, r) <= 0) {
-          return false;
-        }
-        if (r == Role.pawn && IraSquareSet.backranks.has(t)) {
-          return false;
-        }
-        return legalDrops.has(t);
     }
   }
 
@@ -501,7 +485,7 @@ abstract class Position<T extends Position<T>> {
 
         if (castlingSide == null) {
           final newPiece = prom != null
-              ? piece.copyWith(role: prom, promoted: pockets != null)
+              ? piece.copyWith(role: prom, promoted: false)
               : piece;
           newBoard = newBoard.setPieceAt(to, newPiece);
         }
@@ -520,22 +504,10 @@ abstract class Position<T extends Position<T>> {
         return _copyWith(
           halfmoves: isCapture || piece.role == Role.pawn ? 0 : halfmoves + 1,
           fullmoves: turn == Side.black ? fullmoves + 1 : fullmoves,
-          pockets: Box(capturedPiece != null
-              ? pockets?.increment(capturedPiece.color.opposite,
-                  capturedPiece.promoted ? Role.pawn : capturedPiece.role)
-              : pockets),
           board: newBoard,
           turn: turn.opposite,
           castles: newCastles,
           epSquare: Box(newEpSquare),
-        );
-      case DropMove(to: final to, role: final role):
-        return _copyWith(
-          halfmoves: role == Role.pawn ? 0 : halfmoves + 1,
-          fullmoves: turn == Side.black ? fullmoves + 1 : fullmoves,
-          turn: turn.opposite,
-          board: board.setPieceAt(to, Piece(color: turn, role: role)),
-          pockets: Box(pockets?.decrement(turn, role)),
         );
     }
   }
@@ -645,7 +617,6 @@ abstract class Position<T extends Position<T>> {
     return identical(this, other) ||
         other is Position &&
             other.board == board &&
-            other.pockets == pockets &&
             other.turn == turn &&
             other.castles == castles &&
             other.epSquare == epSquare &&
@@ -656,7 +627,6 @@ abstract class Position<T extends Position<T>> {
   @override
   int get hashCode => Object.hash(
         board,
-        pockets,
         turn,
         castles,
         epSquare,
@@ -762,9 +732,6 @@ abstract class Position<T extends Position<T>> {
             san += '=${prom.char.toUpperCase()}';
           }
         }
-      case DropMove(role: final role, to: final to):
-        if (role != Role.pawn) san = role.char.toUpperCase();
-        san += '@${toAlgebraic(to)}';
     }
     return san;
   }
@@ -957,7 +924,6 @@ abstract class Position<T extends Position<T>> {
 class Iratus extends Position<Iratus> {
   const Iratus({
     required super.board,
-    super.pockets,
     required super.turn,
     required super.castles,
     super.epSquare,
@@ -991,7 +957,6 @@ class Iratus extends Position<Iratus> {
   @override
   Iratus _copyWith({
     Board? board,
-    Box<Pockets?>? pockets,
     Side? turn,
     Castles? castles,
     Box<Square?>? epSquare,
@@ -1000,7 +965,6 @@ class Iratus extends Position<Iratus> {
   }) {
     return Iratus(
       board: board ?? this.board,
-      pockets: pockets != null ? pockets.value : this.pockets,
       turn: turn ?? this.turn,
       castles: castles ?? this.castles,
       epSquare: epSquare != null ? epSquare.value : this.epSquare,

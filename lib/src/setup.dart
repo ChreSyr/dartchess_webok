@@ -13,9 +13,6 @@ class Setup {
   /// Piece positions on the board.
   final Board board;
 
-  /// Pockets in chess variants like [Crazyhouse].
-  final Pockets? pockets;
-
   /// Side to move.
   final Side turn;
 
@@ -38,7 +35,6 @@ class Setup {
 
   const Setup({
     required this.board,
-    this.pockets,
     required this.turn,
     required this.unmovedRooks,
     this.epSquare,
@@ -70,27 +66,9 @@ class Setup {
     final parts = fen.split(RegExp(r'[\s_]+'));
     if (parts.isEmpty) throw const FenError('ERR_FEN');
 
-    // board and pockets
+    // board
     final boardPart = parts.removeAt(0);
-    Pockets? pockets;
-    Board board;
-    if (boardPart.endsWith(']')) {
-      final pocketStart = boardPart.indexOf('[');
-      if (pocketStart == -1) {
-        throw const FenError('ERR_FEN');
-      }
-      board = Board.parseFen(boardPart.substring(0, pocketStart));
-      pockets = _parsePockets(
-          boardPart.substring(pocketStart + 1, boardPart.length - 1));
-    } else {
-      final pocketStart = _nthIndexOf(boardPart, '/', 7);
-      if (pocketStart == -1) {
-        board = Board.parseFen(boardPart);
-      } else {
-        board = Board.parseFen(boardPart.substring(0, pocketStart));
-        pockets = _parsePockets(boardPart.substring(pocketStart + 1));
-      }
-    }
+    final board = Board.parseFen(boardPart);
 
     // turn
     Side turn;
@@ -162,7 +140,6 @@ class Setup {
 
     return Setup(
       board: board,
-      pockets: pockets,
       turn: turn,
       unmovedRooks: unmovedRooks,
       epSquare: epSquare,
@@ -175,7 +152,7 @@ class Setup {
   String get turnLetter => turn.name[0];
 
   String get fen => [
-        board.fen + (pockets != null ? _makePockets(pockets!) : ''),
+        board.fen,
         turnLetter,
         _makeCastlingFen(board, unmovedRooks),
         if (epSquare != null) toAlgebraic(epSquare!) else '-',
@@ -205,86 +182,6 @@ class Setup {
         halfmoves,
         fullmoves,
       );
-}
-
-/// Pockets (captured pieces) in chess variants like [Crazyhouse].
-/// 
-/// TODO : remove
-@immutable
-class Pockets {
-  const Pockets({
-    required this.value,
-  });
-
-  final BySide<ByRole<int>> value;
-
-  /// An empty pocket.
-  static const empty = Pockets(value: _emptyPocketsBySide);
-
-  /// Gets the total number of pieces in the pocket.
-  int get size => value.values
-      .fold(0, (acc, e) => acc + e.values.fold(0, (acc, e) => acc + e));
-
-  /// Gets the number of pieces of that [Side] and [Role] in the pocket.
-  int of(Side side, Role role) {
-    return value[side]![role]!;
-  }
-
-  /// Counts the number of pieces by [Role].
-  int count(Role role) {
-    return value[Side.white]![role]! + value[Side.black]![role]!;
-  }
-
-  /// Checks whether this side has at least 1 quality (any piece but a pawn).
-  bool hasQuality(Side side) {
-    final bySide = value[side]!;
-    return bySide[Role.knight]! > 0 ||
-        bySide[Role.bishop]! > 0 ||
-        bySide[Role.rook]! > 0 ||
-        bySide[Role.queen]! > 0 ||
-        bySide[Role.king]! > 0;
-  }
-
-  /// Checks whether this side has at least 1 pawn.
-  bool hasPawn(Side side) {
-    return value[side]![Role.pawn]! > 0;
-  }
-
-  /// Increments the number of pieces in the pocket of that [Side] and [Role].
-  Pockets increment(Side side, Role role) {
-    final newPocket = value[side]!.add(role, of(side, role) + 1);
-    return Pockets(value: value.add(side, newPocket));
-  }
-
-  /// Decrements the number of pieces in the pocket of that [Side] and [Role].
-  Pockets decrement(Side side, Role role) {
-    final newPocket = value[side]!.add(role, of(side, role) - 1);
-    return Pockets(value: value.add(side, newPocket));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) || other is Pockets && other.value == value;
-  }
-
-  @override
-  int get hashCode => value.hashCode;
-}
-
-Pockets _parsePockets(String pocketPart) {
-  if (pocketPart.length > 64) {
-    throw const FenError('ERR_POCKETS');
-  }
-  Pockets pockets = Pockets.empty;
-  for (int i = 0; i < pocketPart.length; i++) {
-    final c = pocketPart[i];
-    final piece = Piece.fromChar(c);
-    if (piece == null) {
-      throw const FenError('ERR_POCKETS');
-    }
-    pockets = pockets.increment(piece.color, piece.role);
-  }
-  return pockets;
 }
 
 (int, int) _parseRemainingChecks(String part) {
@@ -348,18 +245,6 @@ IraSquareSet _parseCastlingFen(Board board, String castlingPart) {
   return unmovedRooks;
 }
 
-String _makePockets(Pockets pockets) {
-  final wPart = [
-    for (final r in Role.values)
-      ...List.filled(pockets.of(Side.white, r), r.char)
-  ].join();
-  final bPart = [
-    for (final r in Role.values)
-      ...List.filled(pockets.of(Side.black, r), r.char)
-  ].join();
-  return '[${wPart.toUpperCase()}$bPart]';
-}
-
 String _makeCastlingFen(Board board, IraSquareSet unmovedRooks) {
   final buffer = StringBuffer();
   for (final color in Side.values) {
@@ -389,27 +274,3 @@ String _makeRemainingChecks((int, int) checks) {
 
 int? _parseSmallUint(String str) =>
     RegExp(r'^\d{1,4}$').hasMatch(str) ? int.parse(str) : null;
-
-int _nthIndexOf(String haystack, String needle, int nth) {
-  int index = haystack.indexOf(needle);
-  int n = nth;
-  while (n-- > 0) {
-    if (index == -1) break;
-    index = haystack.indexOf(needle, index + needle.length);
-  }
-  return index;
-}
-
-const ByRole<int> _emptyPocket = IMapConst({
-  Role.pawn: 0,
-  Role.knight: 0,
-  Role.bishop: 0,
-  Role.rook: 0,
-  Role.queen: 0,
-  Role.king: 0,
-});
-
-const BySide<ByRole<int>> _emptyPocketsBySide = IMapConst({
-  Side.white: _emptyPocket,
-  Side.black: _emptyPocket,
-});

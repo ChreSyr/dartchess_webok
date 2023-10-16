@@ -236,11 +236,7 @@ sealed class Move {
   ///
   /// Returns `null` if UCI string is not valid.
   static Move? fromUci(String str) {
-    if (str[1] == '@' && str.length == 4) {
-      final role = Role.fromChar(str[0]);
-      final to = parseSquare(str.substring(2));
-      if (role != null && to != null) return DropMove(to: to, role: role);
-    } else if (str.length == 4 || str.length == 5) {
+    if (str.length == 4 || str.length == 5) {
       final from = parseSquare(str.substring(0, 2));
       final to = parseSquare(str.substring(2, 4));
       Role? promotion;
@@ -293,30 +289,6 @@ class NormalMove extends Move {
 
   @override
   int get hashCode => Object.hash(from, to, promotion);
-}
-
-/// Represents a drop move.
-@immutable
-class DropMove extends Move {
-  const DropMove({
-    required super.to,
-    required this.role,
-  });
-
-  final Role role;
-
-  /// Gets UCI notation of the drop, like `Q@f7`.
-  @override
-  String get uci => '${role.char.toUpperCase()}@${toAlgebraic(to)}';
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        other.runtimeType == runtimeType && hashCode == other.hashCode;
-  }
-
-  @override
-  int get hashCode => Object.hash(to, role);
 }
 
 @immutable

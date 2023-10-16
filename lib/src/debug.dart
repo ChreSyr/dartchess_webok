@@ -115,22 +115,6 @@ int perft(Position pos, int depth, {bool shouldLog = false}) {
         }
       }
     }
-    if (pos.pockets != null) {
-      for (final role in Role.values) {
-        if (pos.pockets!.of(pos.turn, role) > 0) {
-          for (final to in (role == Role.pawn
-                  ? legalDrops.diff(IraSquareSet.backranks)
-                  : legalDrops)
-              .squares) {
-            final drop = DropMove(role: role, to: to);
-            final child = pos.playUnchecked(drop);
-            final children = perft(child, depth - 1);
-            if (shouldLog) print('${drop.uci} $children');
-            nodes += children;
-          }
-        }
-      }
-    }
     return nodes;
   }
 }
