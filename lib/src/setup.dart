@@ -208,6 +208,8 @@ class Setup {
 }
 
 /// Pockets (captured pieces) in chess variants like [Crazyhouse].
+/// 
+/// TODO : remove
 @immutable
 class Pockets {
   const Pockets({

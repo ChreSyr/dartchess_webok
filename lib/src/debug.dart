@@ -80,8 +80,7 @@ final _promotionRoles = [Role.queen, Role.rook, Role.knight, Role.bishop];
 int perft(Position pos, int depth, {bool shouldLog = false}) {
   if (depth < 1) return 1;
 
-  final promotionRoles =
-      pos is Antichess ? [..._promotionRoles, Role.king] : _promotionRoles;
+  final promotionRoles = _promotionRoles;
   final legalDrops = pos.legalDrops;
 
   if (!shouldLog && depth == 1 && legalDrops.isEmpty) {
