@@ -1,4 +1,4 @@
-import 'package:dartiratus/dartiratus.dart';
+import 'package:dartchess_webok/dartchess_webok.dart';
 import 'package:test/test.dart';
 
 void main() {

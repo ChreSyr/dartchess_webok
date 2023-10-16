@@ -10,7 +10,7 @@ import './utils.dart';
 
 /// A base class for playable chess positions.
 ///
-/// See [Iratus] for a concrete implementation of standard rules.
+/// See [Chess] for a concrete implementation of standard rules.
 @immutable
 abstract class Position<T extends Position<T>> {
   const Position({
@@ -71,7 +71,7 @@ abstract class Position<T extends Position<T>> {
       {bool? ignoreImpossibleCheck}) {
     switch (rules) {
       case Rules.chess:
-        return Iratus.fromSetup(setup,
+        return Chess.fromSetup(setup,
             ignoreImpossibleCheck: ignoreImpossibleCheck);
     }
   }
@@ -80,7 +80,7 @@ abstract class Position<T extends Position<T>> {
   static Position initialPosition(Rules rules) {
     switch (rules) {
       case Rules.chess:
-        return Iratus.initial;
+        return Chess.initial;
     }
   }
 
@@ -909,8 +909,8 @@ abstract class Position<T extends Position<T>> {
 
 /// A standard chess position.
 @immutable
-class Iratus extends Position<Iratus> {
-  const Iratus({
+class Chess extends Position<Chess> {
+  const Chess({
     required super.board,
     required super.turn,
     required super.castles,
@@ -919,25 +919,25 @@ class Iratus extends Position<Iratus> {
     required super.fullmoves,
   });
 
-  Iratus._fromSetupUnchecked(super.setup) : super._fromSetupUnchecked();
-  const Iratus._initial() : super._initial();
+  Chess._fromSetupUnchecked(super.setup) : super._fromSetupUnchecked();
+  const Chess._initial() : super._initial();
 
-  static const initial = Iratus._initial();
+  static const initial = Chess._initial();
 
-  /// Set up a playable [Iratus] position.
+  /// Set up a playable [Chess] position.
   ///
   /// Throws a [PositionError] if the [Setup] does not meet basic validity
   /// requirements.
   /// Optionnaly pass a `ignoreImpossibleCheck` boolean if you want to skip that
   /// requirement.
-  factory Iratus.fromSetup(Setup setup, {bool? ignoreImpossibleCheck}) {
-    final pos = Iratus._fromSetupUnchecked(setup);
+  factory Chess.fromSetup(Setup setup, {bool? ignoreImpossibleCheck}) {
+    final pos = Chess._fromSetupUnchecked(setup);
     pos.validate(ignoreImpossibleCheck: ignoreImpossibleCheck);
     return pos;
   }
 
   @override
-  Iratus _copyWith({
+  Chess _copyWith({
     Board? board,
     Side? turn,
     Castles? castles,
@@ -945,7 +945,7 @@ class Iratus extends Position<Iratus> {
     int? halfmoves,
     int? fullmoves,
   }) {
-    return Iratus(
+    return Chess(
       board: board ?? this.board,
       turn: turn ?? this.turn,
       castles: castles ?? this.castles,

@@ -1,11 +1,11 @@
-Iratus rules written in dart for native platforms (does not support web).
+Chess rules written in dart for native platforms (does not support web).
 
 ## Features
 
 - Completely immutable Position class
 - Read and write FEN
 - Read and write SAN
-- Iratus rules:
+- Chess rules:
   - move making
   - legal moves generation
   - game end and outcome
@@ -18,9 +18,9 @@ Iratus rules written in dart for native platforms (does not support web).
 ## Example
 
 ```dart
-import 'package:dartiratus/dartiratus.dart';
+import 'package:dartchess_webok/dartchess_webok.dart';
 
-final pos = Iratus.fromSetup(IraSetup.parseFen('fd(0)s(0)yys(1)d(1)g/rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR/FD(2)S(2)YYS(3)D(3)G w QKqk - 1100000000000000-0000000000000001 1 3'));
+final pos = Chess.fromSetup(IraSetup.parseFen('fd(0)s(0)yys(1)d(1)g/rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR/FD(2)S(2)YYS(3)D(3)G w QKqk - 1100000000000000-0000000000000001 1 3'));
 assert(pos.isCheckmate == true);
 ```
 

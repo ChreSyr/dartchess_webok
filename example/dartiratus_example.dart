@@ -1,10 +1,10 @@
-import 'package:dartiratus/dartiratus.dart';
+import 'package:dartchess_webok/dartchess_webok.dart';
 
 void main() {
-  // Parse fen and create a valid iratus position
+  // Parse fen and create a valid Chess position
   final setup = Setup.parseFen(
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-  final pos = Iratus.fromSetup(setup);
+  final pos = Chess.fromSetup(setup);
 
   // Generate legal moves in algebraic notation
   final legalMoves = algebraicLegalMoves(pos);

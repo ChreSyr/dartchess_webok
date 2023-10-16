@@ -1,10 +1,10 @@
 import 'package:test/test.dart';
-import 'package:dartiratus/dartiratus.dart';
+import 'package:dartchess_webok/dartchess_webok.dart';
 
 void main() async {
   group('Standard chess', () {
     test('initial position', () {
-      const pos = Iratus.initial;
+      const pos = Chess.initial;
       expect(perft(pos, 0), 1);
       expect(perft(pos, 1), 20);
       expect(perft(pos, 2), 400);

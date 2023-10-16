@@ -1,6 +1,6 @@
-name: dartiratus
-description: Provides iratus rules and operations including move generation, read and write FEN, read and write PGN.
-repository: https://github.com/ChreSyr/dartiratus
+name: dartchess_webok
+description: Provides Chess rules and operations including move generation, read and write FEN, read and write PGN.
+repository: https://github.com/ChreSyr/dartchess_webok
 version: 0.0.0
 platforms:
   android:

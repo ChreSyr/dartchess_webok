@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:dartiratus/dartiratus.dart';
+import 'package:dartchess_webok/dartchess_webok.dart';
 
 void main() {
   test('makeIraSquareSet', () {
