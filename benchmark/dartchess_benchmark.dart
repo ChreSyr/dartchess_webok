@@ -1,6 +1,5 @@
 import 'package:benchmark/benchmark.dart';
 import 'package:dartchess/dartchess.dart';
-import 'dart:io';
 
 void main() {
   benchmark('make fen from initial position', () {
@@ -39,19 +38,6 @@ void main() {
 
   benchmark('algebraic legal moves', () {
     algebraicLegalMoves(legalMovesPos);
-  });
-
-  benchmark('parsePgn - kasparov-deep-blue', () {
-    final String data =
-        File('./data/kasparov-deep-blue-1997.pgn').readAsStringSync();
-
-    PgnGame.parseMultiGamePgn(data);
-  });
-
-  final game = PgnGame.parsePgn(
-      File('./data/lichess-bullet-game.pgn').readAsStringSync());
-  benchmark('makePgn', () {
-    game.makePgn();
   });
 
   benchmark('initial position perft at depth 5', () {
