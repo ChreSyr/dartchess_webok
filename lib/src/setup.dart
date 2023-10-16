@@ -1,5 +1,4 @@
 import 'package:meta/meta.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'dart:math' as math;
 import './square_set.dart';
 import './models.dart';
