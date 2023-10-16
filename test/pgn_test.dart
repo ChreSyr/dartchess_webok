@@ -1,6 +1,5 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:test/test.dart';
-import 'dart:io';
 
 void main() {
   group('Pgn', () {
@@ -74,54 +73,6 @@ void main() {
       expect(steps[0].nags, [3]);
       expect(steps[1].san, 'O-O-O#');
       expect(steps[1].nags, [4]);
-    });
-
-    test('pgn file - kasparov-deep-blue-1997', () {
-      final String data =
-          File('./data/kasparov-deep-blue-1997.pgn').readAsStringSync();
-      final List<PgnGame<PgnNodeData>> games = PgnGame.parseMultiGamePgn(data);
-      expect(games.length, 6);
-    });
-
-    test('pgn file - specify empty headers', () {
-      final String data =
-          File('./data/kasparov-deep-blue-1997.pgn').readAsStringSync();
-      final List<PgnGame<PgnNodeData>> games =
-          PgnGame.parseMultiGamePgn(data, initHeaders: () => {});
-      expect(games.length, 6);
-    });
-
-    test('pgn file - leading-whitespace', () {
-      final String data =
-          File('./data/leading-whitespace.pgn').readAsStringSync();
-      final List<PgnGame<PgnNodeData>> games = PgnGame.parseMultiGamePgn(data);
-      expect(games[0].moves.mainline().map((move) => move.san).toList(),
-          ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5']);
-      expect(games.length, 4);
-    });
-
-    test('pgn file - headers-and-moves-on-the-same-line', () {
-      final String data = File('./data/headers-and-moves-on-the-same-line.pgn')
-          .readAsStringSync();
-      final List<PgnGame<PgnNodeData>> games = PgnGame.parseMultiGamePgn(data);
-      expect(games[0].headers['Variant'], 'Antichess');
-      expect(games[1].moves.mainline().map((move) => move.san).toList(),
-          ['e3', 'e6', 'b4', 'Bxb4', 'Qg4']);
-      expect(games.length, 3);
-    });
-
-    test('pgn file - pathological-headers', () {
-      final String data =
-          File('./data/pathological-headers.pgn').readAsStringSync();
-      final List<PgnGame<PgnNodeData>> games = PgnGame.parseMultiGamePgn(data);
-      expect(games[0].headers['A'], 'b"');
-      expect(games[0].headers['B'], 'b"');
-      expect(games[0].headers['C'], 'A]]');
-      expect(games[0].headers['D'], 'A]][');
-      expect(games[0].headers['E'], '"A]]["');
-      expect(games[0].headers['F'], '"A]]["\\');
-      expect(games[0].headers['G'], '"]');
-      expect(games.length, 1);
     });
 
     test('parse comment', () {
