@@ -1,5 +1,4 @@
-import 'package:fast_immutable_collections/fast_immutable_collections.dart'
-    hide Tuple2;
+
 import 'package:dartiratus/dartiratus.dart';
 import 'package:test/test.dart';
 
@@ -13,7 +12,7 @@ void main() {
     expect(moves['g7'], isNot(contains('g8')));
   });
 
-  test('algebraicLegalMoves with regular castle', () {
+  test('algebraicLegalMoves with castle', () {
     final wtm = Iratus.fromSetup(
         Setup.parseFen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1'));
     expect(algebraicLegalMoves(wtm)['e1'],
@@ -25,12 +24,5 @@ void main() {
     expect(algebraicLegalMoves(btm)['e8'],
         equals({'a8', 'c8', 'd7', 'd8', 'e7', 'f7', 'f8', 'g8', 'h8'}));
     expect(algebraicLegalMoves(btm)['e1'], null);
-  });
-
-  test('algebraicLegalMoves with chess960 castle', () {
-    final pos = Iratus.fromSetup(Setup.parseFen(
-        'rk2r3/pppbnppp/3p2n1/P2Pp3/4P2q/R5NP/1PP2PP1/1KNQRB2 b Kkq - 0 1'));
-    expect(algebraicLegalMoves(pos, isChess960: true)['b8'],
-        equals(ISet(const {'a8', 'c8', 'e8'})));
   });
 }

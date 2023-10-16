@@ -25,18 +25,15 @@ String toAlgebraic(Square square) =>
 
 /// Gets all the legal moves of this position in the algebraic coordinate notation.
 ///
-/// Includes both possible representations of castling moves (unless `chess960` is true).
-IMap<String, ISet<String>> algebraicLegalMoves(Position pos,
-    {bool isChess960 = false}) {
+/// Includes both possible representations of castling moves.
+IMap<String, ISet<String>> algebraicLegalMoves(Position pos) {
   final Map<String, ISet<String>> result = {};
   for (final entry in pos.legalMoves.entries) {
     final dests = entry.value.squares;
     if (dests.isNotEmpty) {
       final from = entry.key;
       final destSet = dests.map((e) => toAlgebraic(e)).toSet();
-      if (!isChess960 &&
-          from == pos.board.kingOf(pos.turn) &&
-          squareFile(entry.key) == 4) {
+      if (from == pos.board.kingOf(pos.turn) && squareFile(entry.key) == 4) {
         if (dests.contains(0)) {
           destSet.add('c1');
         } else if (dests.contains(56)) {
