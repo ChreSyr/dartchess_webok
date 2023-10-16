@@ -1,4 +1,4 @@
-import 'package:dartchess/dartiratus.dart';
+import 'package:dartiratus/dartiratus.dart';
 
 void main() {
   // Parse fen and create a valid iratus position

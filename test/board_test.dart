@@ -1,4 +1,4 @@
-import 'package:dartchess/dartiratus.dart';
+import 'package:dartiratus/dartiratus.dart';
 import 'package:test/test.dart';
 
 void main() {

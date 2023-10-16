@@ -1,4 +1,4 @@
-import 'package:dartchess/dartiratus.dart';
+import 'package:dartiratus/dartiratus.dart';
 
 void main() {
   final stopwatch = Stopwatch()..start();

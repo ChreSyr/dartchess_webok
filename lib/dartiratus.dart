@@ -1,7 +1,7 @@
 /// Dart iratus library for native platforms.
 ///
 /// All classes are immutable except [PgnNode] and [PgnChildNode].
-library dartchess;
+library dartiratus;
 
 export 'src/constants.dart';
 export 'src/models.dart';

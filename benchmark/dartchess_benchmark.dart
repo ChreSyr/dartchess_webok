@@ -1,5 +1,5 @@
 import 'package:benchmark/benchmark.dart';
-import 'package:dartchess/dartiratus.dart';
+import 'package:dartiratus/dartiratus.dart';
 
 void main() {
   benchmark('make fen from initial position', () {

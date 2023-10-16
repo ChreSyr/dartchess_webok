@@ -1,4 +1,4 @@
-name: dartchess
+name: dartiratus
 description: Provides iratus rules and operations including move generation, read and write FEN, read and write PGN.
 repository: https://github.com/ChreSyr/dartiratus
 version: 0.0.0

@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:dartchess/dartiratus.dart';
+import 'package:dartiratus/dartiratus.dart';
 
 void main() {
   test('King attacks', () {
