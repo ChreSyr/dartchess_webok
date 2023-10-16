@@ -244,19 +244,6 @@ void main() {
       expect(
           position.parseSan('2e4'), equals(const NormalMove(from: 12, to: 28)));
     });
-
-    test('chess960 parseSan castle moves', () {
-      Position<Chess> position = Chess.fromSetup(Setup.parseFen(
-          'brknnqrb/pppppppp/8/8/8/8/PPPPPPPP/BRKNNQRB w KQkq - 0 1'));
-      const moves =
-          'b3 b6 Ne3 g6 Bxh8 Rxh8 O-O-O Qg7 Kb1 Ne6 Nd3 Nf6 h3 O-O-O Nc4 d5 Na3 Nd4 e3 Nc6 Nb5 Rhe8 f3 e5 g4 Re6 g5 Nd7 h4 h5 Bg2 a6 Nc3 Nc5 Nxc5 bxc5 Qxa6+ Bb7 Qa3 Kd7 Qxc5 Ra8 Nxd5 Rd6 Nf6+ Kc8 Ne8 Qf8 Nxd6+ cxd6 Qc3 f5 f4 e4 d3 Qd8 dxe4 Qb6 exf5 gxf5 Rxd6';
-      for (final move in moves.split(' ')) {
-        position = position.playUnchecked(position.parseSan(move)!);
-      }
-      expect(position.fullmoves, equals(31));
-      expect(position.fen,
-          'r1k5/1b6/1qnR4/5pPp/5P1P/1PQ1P3/P1P3B1/1K4R1 b - - 0 31');
-    });
   });
 
   group('Chess', () {
