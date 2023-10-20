@@ -2,6 +2,13 @@ import 'package:meta/meta.dart';
 import './models.dart';
 
 final _max = BigInt.parse('0xffffffffffffffff');
+final _flip1 = BigInt.parse('0x00FF00FF00FF00FF');
+final _flip2 = BigInt.parse('0x0000FFFF0000FFFF');
+final _mirror1 = BigInt.parse('0x5555555555555555');
+final _mirror2 = BigInt.parse('0x3333333333333333');
+final _mirror4 = BigInt.parse('0x0f0f0f0f0f0f0f0f');
+final _fileA = BigInt.parse('0x0101010101010101');
+final _rank8 = BigInt.parse('0xff00000000000000');
 
 /// A set of squares represented by a 64 bit integer mask, using little endian
 /// rank-file (LERF) mapping.
@@ -43,20 +50,18 @@ class IraSquareSet {
 
   /// Create a [IraSquareSet] containing all squares of the given file.
   IraSquareSet.fromFile(int file)
-      : value = BigInt.parse('0x0101010101010101') << file,
+      : value = _fileA << file,
         assert(file >= 0 && file < 8);
 
   /// Create a [IraSquareSet] containing all squares of the given backrank [Side].
   IraSquareSet.backrankOf(Side side)
-      : value = side == Side.white
-            ? BigInt.from(0xff)
-            : BigInt.parse('0xff00000000000000');
+      : value = side == Side.white ? BigInt.from(0xff) : _rank8;
 
   /// 64 bit integer representing the square set.
   final BigInt value;
 
   static final empty = IraSquareSet(BigInt.zero);
-  static final full = IraSquareSet(BigInt.parse('0xffffffffffffffff'));
+  static final full = IraSquareSet(_max);
   static final lightSquares = IraSquareSet(BigInt.parse('0x55AA55AA55AA55AA'));
   static final darkSquares = IraSquareSet(BigInt.parse('0xAA55AA55AA55AA55'));
   static final diagonal = IraSquareSet(BigInt.parse('0x8040201008040201'));
@@ -101,21 +106,16 @@ class IraSquareSet {
   IraSquareSet diff(IraSquareSet other) => IraSquareSet(value & ~other.value);
 
   IraSquareSet flipVertical() {
-    final k1 = BigInt.parse('0x00FF00FF00FF00FF');
-    final k2 = BigInt.parse('0x0000FFFF0000FFFF');
-    BigInt x = ((value >> 8) & k1) | ((value & k1) << 8);
-    x = ((x >> 16) & k2) | ((x & k2) << 16);
+    BigInt x = ((value >> 8) & _flip1) | ((value & _flip1) << 8);
+    x = ((x >> 16) & _flip2) | ((x & _flip2) << 16);
     x = (x >> 32) | (x << 32) & _max;
     return IraSquareSet(x);
   }
 
   IraSquareSet mirrorHorizontal() {
-    final k1 = BigInt.parse('0x5555555555555555');
-    final k2 = BigInt.parse('0x3333333333333333');
-    final k4 = BigInt.parse('0x0f0f0f0f0f0f0f0f');
-    BigInt x = ((value >> 1) & k1) | ((value & k1) << 1);
-    x = ((x >> 2) & k2) | ((x & k2) << 2);
-    x = ((x >> 4) & k4) | ((x & k4) << 4);
+    BigInt x = ((value >> 1) & _mirror1) | ((value & _mirror1) << 1);
+    x = ((x >> 2) & _mirror2) | ((x & _mirror2) << 2);
+    x = ((x >> 4) & _mirror4) | ((x & _mirror4) << 4);
     return IraSquareSet(x);
   }
 
