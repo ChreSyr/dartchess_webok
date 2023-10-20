@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import './models.dart';
 
+final _max = BigInt.parse('0xffffffffffffffff');
+
 /// A set of squares represented by a 64 bit integer mask, using little endian
 /// rank-file (LERF) mapping.
 ///
@@ -21,7 +23,7 @@ import './models.dart';
 @immutable
 class IraSquareSet {
   /// Creates a [IraSquareSet] with the provided 64bit integer value.
-  const IraSquareSet(this.value);
+  IraSquareSet(this.value) : assert(value <= _max);
 
   /// Creates a [IraSquareSet] with a single [Square].
   IraSquareSet.fromSquare(Square square)
@@ -73,7 +75,7 @@ class IraSquareSet {
   /// Bitwise left shift
   IraSquareSet shl(int shift) {
     if (shift >= 64) return IraSquareSet.empty;
-    if (shift > 0) return IraSquareSet(value << shift);
+    if (shift > 0) return IraSquareSet(value << shift & _max);
     return this;
   }
 
@@ -103,7 +105,7 @@ class IraSquareSet {
     final k2 = BigInt.parse('0x0000FFFF0000FFFF');
     BigInt x = ((value >> 8) & k1) | ((value & k1) << 8);
     x = ((x >> 16) & k2) | ((x & k2) << 16);
-    x = (x >> 32) | (x << 32);
+    x = (x >> 32) | (x << 32) & _max;
     return IraSquareSet(x);
   }
 
