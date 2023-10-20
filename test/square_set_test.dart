@@ -3,34 +3,31 @@ import 'package:test/test.dart';
 
 void main() {
   test('toString', () {
-    expect(IraSquareSet.empty.toString(), 'IraSquareSet(0)');
-    expect(IraSquareSet.full.toString(), 'IraSquareSet(0xFFFFFFFFFFFFFFFF)');
-    expect(IraSquareSet.lightSquares.toString(),
-        'IraSquareSet(0x55AA55AA55AA55AA)');
-    expect(IraSquareSet.darkSquares.toString(),
-        'IraSquareSet(0xAA55AA55AA55AA55)');
+    expect(SquareSet.empty.toString(), 'SquareSet(0)');
+    expect(SquareSet.full.toString(), 'SquareSet(0xFFFFFFFFFFFFFFFF)');
+    expect(SquareSet.lightSquares.toString(), 'SquareSet(0x55AA55AA55AA55AA)');
+    expect(SquareSet.darkSquares.toString(), 'SquareSet(0xAA55AA55AA55AA55)');
     expect(
-        IraSquareSet.diagonal.toString(), 'IraSquareSet(0x8040201008040201)');
-    expect(IraSquareSet.antidiagonal.toString(),
-        'IraSquareSet(0x0102040810204080)');
-    expect(IraSquareSet.corners.toString(), 'IraSquareSet(0x8100000000000081)');
+        SquareSet.diagonal.toString(), 'SquareSet(0x8040201008040201)');
+    expect(SquareSet.antidiagonal.toString(), 'SquareSet(0x0102040810204080)');
+    expect(SquareSet.corners.toString(), 'SquareSet(0x8100000000000081)');
     expect(
-        IraSquareSet.backranks.toString(), 'IraSquareSet(0xFF000000000000FF)');
-    expect(IraSquareSet(BigInt.parse('0x0000000000000001')).toString(),
-        'IraSquareSet(0x0000000000000001)');
+        SquareSet.backranks.toString(), 'SquareSet(0xFF000000000000FF)');
+    expect(SquareSet(BigInt.parse('0x0000000000000001')).toString(),
+        'SquareSet(0x0000000000000001)');
     expect(
-        IraSquareSet(BigInt.parse('0xf')).toString(),
-        'IraSquareSet(0x000000000000000F)');
+        SquareSet(BigInt.parse('0xf')).toString(),
+        'SquareSet(0x000000000000000F)');
   });
 
   test('full set has all', () {
     for (Square square = 0; square < 64; square++) {
-      expect(IraSquareSet.full.has(square), true);
+      expect(SquareSet.full.has(square), true);
     }
   });
 
   test('size', () {
-    IraSquareSet squares = IraSquareSet.empty;
+    SquareSet squares = SquareSet.empty;
     for (int i = 0; i < 64; i++) {
       expect(squares.size, i);
       squares = squares.withSquare(i);
@@ -38,98 +35,94 @@ void main() {
   });
 
   test('shr', () {
-    final r = IraSquareSet(BigInt.parse('0xe0a12221e222212'));
+    final r = SquareSet(BigInt.parse('0xe0a12221e222212'));
     expect(r.shr(0), r);
-    expect(r.shr(1), IraSquareSet(BigInt.parse('0x70509110f111109')));
-    expect(r.shr(3), IraSquareSet(BigInt.parse('0x1c1424443c44442')));
-    expect(r.shr(48), IraSquareSet(BigInt.parse('0xe0a')));
-    expect(r.shr(62), IraSquareSet.empty);
+    expect(r.shr(1), SquareSet(BigInt.parse('0x70509110f111109')));
+    expect(r.shr(3), SquareSet(BigInt.parse('0x1c1424443c44442')));
+    expect(r.shr(48), SquareSet(BigInt.parse('0xe0a')));
+    expect(r.shr(62), SquareSet.empty);
   });
 
   test('shl', () {
-    final r = IraSquareSet(BigInt.parse('0xe0a12221e222212'));
+    final r = SquareSet(BigInt.parse('0xe0a12221e222212'));
     expect(r.shl(0), r);
-    expect(r.shl(1), IraSquareSet(BigInt.parse('0x1c1424443c444424')));
-    expect(r.shl(3), IraSquareSet(BigInt.parse('0x70509110f1111090')));
-    expect(r.shl(10), IraSquareSet(BigInt.parse('0x2848887888884800')));
-    expect(r.shl(32), IraSquareSet(BigInt.parse('0x1e22221200000000')));
-    expect(r.shl(48), IraSquareSet(BigInt.parse('0x2212000000000000')));
-    expect(r.shl(62), IraSquareSet(BigInt.parse('0x8000000000000000')));
-    expect(r.shl(63), IraSquareSet.empty);
+    expect(r.shl(1), SquareSet(BigInt.parse('0x1c1424443c444424')));
+    expect(r.shl(3), SquareSet(BigInt.parse('0x70509110f1111090')));
+    expect(r.shl(10), SquareSet(BigInt.parse('0x2848887888884800')));
+    expect(r.shl(32), SquareSet(BigInt.parse('0x1e22221200000000')));
+    expect(r.shl(48), SquareSet(BigInt.parse('0x2212000000000000')));
+    expect(r.shl(62), SquareSet(BigInt.parse('0x8000000000000000')));
+    expect(r.shl(63), SquareSet.empty);
   });
 
   test('first', () {
     for (Square square = 0; square < 64; square++) {
-      expect(IraSquareSet.fromSquare(square).first, square);
+      expect(SquareSet.fromSquare(square).first, square);
     }
-    expect(IraSquareSet.full.first, 0);
-    expect(IraSquareSet.empty.first, null);
+    expect(SquareSet.full.first, 0);
+    expect(SquareSet.empty.first, null);
     for (int rank = 0; rank < 8; rank++) {
-      expect(IraSquareSet.fromRank(rank).first, rank * 8);
+      expect(SquareSet.fromRank(rank).first, rank * 8);
     }
   });
 
   test('last', () {
     for (Square square = 0; square < 64; square++) {
-      expect(IraSquareSet.fromSquare(square).last, square);
+      expect(SquareSet.fromSquare(square).last, square);
     }
-    expect(IraSquareSet.full.last, 63);
-    expect(IraSquareSet.empty.last, null);
+    expect(SquareSet.full.last, 63);
+    expect(SquareSet.empty.last, null);
     for (int rank = 0; rank < 8; rank++) {
-      expect(IraSquareSet.fromRank(rank).last, rank * 8 + 7);
+      expect(SquareSet.fromRank(rank).last, rank * 8 + 7);
     }
   });
 
   test('more that one', () {
-    expect(IraSquareSet.empty.moreThanOne, false);
-    expect(IraSquareSet.full.moreThanOne, true);
-    expect(IraSquareSet.fromSquare(4).moreThanOne, false);
-    expect(IraSquareSet.fromSquare(4).withSquare(5).moreThanOne, true);
+    expect(SquareSet.empty.moreThanOne, false);
+    expect(SquareSet.full.moreThanOne, true);
+    expect(SquareSet.fromSquare(4).moreThanOne, false);
+    expect(SquareSet.fromSquare(4).withSquare(5).moreThanOne, true);
   });
 
   test('singleSquare', () {
-    expect(IraSquareSet.empty.singleSquare, null);
-    expect(IraSquareSet.full.singleSquare, null);
-    expect(IraSquareSet.fromSquare(4).singleSquare, 4);
-    expect(IraSquareSet.fromSquare(4).withSquare(5).singleSquare, null);
+    expect(SquareSet.empty.singleSquare, null);
+    expect(SquareSet.full.singleSquare, null);
+    expect(SquareSet.fromSquare(4).singleSquare, 4);
+    expect(SquareSet.fromSquare(4).withSquare(5).singleSquare, null);
   });
 
   test('squares', () {
-    expect(IraSquareSet.empty.squares.toList(), List<Square>.empty());
+    expect(SquareSet.empty.squares.toList(), List<Square>.empty());
     expect(
-        IraSquareSet.full.squares.toList(), [for (int i = 0; i < 64; i++) i]);
+        SquareSet.full.squares.toList(), [for (int i = 0; i < 64; i++) i]);
     expect(
-        IraSquareSet.diagonal.squares, equals([0, 9, 18, 27, 36, 45, 54, 63]));
+        SquareSet.diagonal.squares, equals([0, 9, 18, 27, 36, 45, 54, 63]));
   });
 
   test('squaresReversed', () {
-    expect(IraSquareSet.empty.squaresReversed.toList(), List<Square>.empty());
-    expect(IraSquareSet.full.squaresReversed.toList(),
+    expect(SquareSet.empty.squaresReversed.toList(), List<Square>.empty());
+    expect(SquareSet.full.squaresReversed.toList(),
         [for (int i = 63; i >= 0; i--) i]);
-    expect(IraSquareSet.diagonal.squaresReversed,
+    expect(SquareSet.diagonal.squaresReversed,
         equals([63, 54, 45, 36, 27, 18, 9, 0]));
   });
 
   test('from file', () {
     expect(
-        IraSquareSet.fromFile(0),
-        IraSquareSet(BigInt.parse('0x0101010101010101')));
+        SquareSet.fromFile(0), SquareSet(BigInt.parse('0x0101010101010101')));
     expect(
-        IraSquareSet.fromFile(7),
-        IraSquareSet(BigInt.parse('0x8080808080808080')));
+        SquareSet.fromFile(7), SquareSet(BigInt.parse('0x8080808080808080')));
   });
 
   test('from rank', () {
     expect(
-        IraSquareSet.fromRank(0),
-        IraSquareSet(BigInt.parse('0x00000000000000FF')));
+        SquareSet.fromRank(0), SquareSet(BigInt.parse('0x00000000000000FF')));
     expect(
-        IraSquareSet.fromRank(7),
-        IraSquareSet(BigInt.parse('0xFF00000000000000')));
+        SquareSet.fromRank(7), SquareSet(BigInt.parse('0xFF00000000000000')));
   });
 
   test('from square', () {
-    expect(IraSquareSet.fromSquare(42), makeIraSquareSet('''
+    expect(SquareSet.fromSquare(42), makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . 1 . . . . .
@@ -143,7 +136,7 @@ void main() {
 
   test('from squares', () {
     expect(
-        IraSquareSet.fromSquares(const [42, 44, 26, 28]), makeIraSquareSet('''
+        SquareSet.fromSquares(const [42, 44, 26, 28]), makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . 1 . 1 . . .
@@ -156,7 +149,7 @@ void main() {
   });
 
   test('with square', () {
-    expect(IraSquareSet.center.withSquare(43), makeIraSquareSet('''
+    expect(SquareSet.center.withSquare(43), makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . 1 . . . .
@@ -169,7 +162,7 @@ void main() {
   });
 
   test('without square', () {
-    expect(IraSquareSet.center.withoutSquare(27), makeIraSquareSet('''
+    expect(SquareSet.center.withoutSquare(27), makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
@@ -182,7 +175,8 @@ void main() {
   });
 
   test('toggle square', () {
-    expect(IraSquareSet.center.toggleSquare(35).toggleSquare(43),
+    expect(
+        SquareSet.center.toggleSquare(35).toggleSquare(43),
         makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .

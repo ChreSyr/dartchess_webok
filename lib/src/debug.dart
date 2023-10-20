@@ -4,7 +4,7 @@ import './position.dart';
 import './square_set.dart';
 import './utils.dart';
 
-/// Takes a string and returns a IraSquareSet. Useful for debugging/testing purposes.
+/// Takes a string and returns a SquareSet. Useful for debugging/testing purposes.
 ///
 /// Example:
 /// ```dart
@@ -19,10 +19,10 @@ import './utils.dart';
 /// . 1 . . 1 . . .
 /// '''
 /// final squareSet = makeIraSquareSet(str);
-/// // IraSquareSet(0x0E0A12221E222212)
+/// // SquareSet(0x0E0A12221E222212)
 /// ```
-IraSquareSet makeIraSquareSet(String rep) {
-  IraSquareSet ret = IraSquareSet.empty;
+SquareSet makeIraSquareSet(String rep) {
+  SquareSet ret = SquareSet.empty;
   final table = rep
       .split('\n')
       .where((l) => l.isNotEmpty)
@@ -42,7 +42,7 @@ IraSquareSet makeIraSquareSet(String rep) {
 }
 
 /// Prints the square set as a human readable string format
-String humanReadableIraSquareSet(IraSquareSet sq) {
+String humanReadableIraSquareSet(SquareSet sq) {
   final buffer = StringBuffer();
   for (int y = 7; y >= 0; y--) {
     for (int x = 0; x < 8; x++) {
@@ -89,7 +89,7 @@ int perft(Position pos, int depth, {bool shouldLog = false}) {
       final to = entry.value;
       nodes += to.size;
       if (pos.board.pawns.has(from)) {
-        final backrank = IraSquareSet.backrankOf(pos.turn.opposite);
+        final backrank = SquareSet.backrankOf(pos.turn.opposite);
         nodes += to.intersect(backrank).size * (promotionRoles.length - 1);
       }
     }

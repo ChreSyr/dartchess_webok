@@ -11,7 +11,7 @@ void main() {
 
     test('Chess.toString()', () {
       expect(Chess.initial.toString(),
-          'Chess(board: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR, turn: Side.white, castles: Castles(unmovedRooks: IraSquareSet(0x8100000000000081)), halfmoves: 0, fullmoves: 1)');
+          'Chess(board: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR, turn: Side.white, castles: Castles(unmovedRooks: SquareSet(0x8100000000000081)), halfmoves: 0, fullmoves: 1)');
     });
   });
 
@@ -30,7 +30,7 @@ void main() {
     });
     test('fromSetup', () {
       final castles = Castles.fromSetup(Setup.standard);
-      expect(castles.unmovedRooks, IraSquareSet.corners);
+      expect(castles.unmovedRooks, SquareSet.corners);
       expect(castles, Castles.standard);
 
       expect(castles.rookOf(Side.white, CastlingSide.queen), 0);
@@ -338,22 +338,22 @@ void main() {
 
     test('standard position legal moves', () {
       final moves = IMap({
-        0: IraSquareSet.empty,
-        1: IraSquareSet.fromSquare(16).withSquare(18),
-        2: IraSquareSet.empty,
-        3: IraSquareSet.empty,
-        4: IraSquareSet.empty,
-        5: IraSquareSet.empty,
-        6: IraSquareSet.fromSquare(21).withSquare(23),
-        7: IraSquareSet.empty,
-        8: IraSquareSet.fromSquare(16).withSquare(24),
-        9: IraSquareSet.fromSquare(17).withSquare(25),
-        10: IraSquareSet.fromSquare(18).withSquare(26),
-        11: IraSquareSet.fromSquare(19).withSquare(27),
-        12: IraSquareSet.fromSquare(20).withSquare(28),
-        13: IraSquareSet.fromSquare(21).withSquare(29),
-        14: IraSquareSet.fromSquare(22).withSquare(30),
-        15: IraSquareSet.fromSquare(23).withSquare(31),
+        0: SquareSet.empty,
+        1: SquareSet.fromSquare(16).withSquare(18),
+        2: SquareSet.empty,
+        3: SquareSet.empty,
+        4: SquareSet.empty,
+        5: SquareSet.empty,
+        6: SquareSet.fromSquare(21).withSquare(23),
+        7: SquareSet.empty,
+        8: SquareSet.fromSquare(16).withSquare(24),
+        9: SquareSet.fromSquare(17).withSquare(25),
+        10: SquareSet.fromSquare(18).withSquare(26),
+        11: SquareSet.fromSquare(19).withSquare(27),
+        12: SquareSet.fromSquare(20).withSquare(28),
+        13: SquareSet.fromSquare(21).withSquare(29),
+        14: SquareSet.fromSquare(22).withSquare(30),
+        15: SquareSet.fromSquare(23).withSquare(31),
       });
       expect(Chess.initial.legalMoves, equals(moves));
     });
@@ -372,7 +372,7 @@ void main() {
       final pos = Chess.fromSetup(Setup.parseFen(
           'r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1'));
       expect(pos.legalMovesOf(4),
-          IraSquareSet(BigInt.parse('0x00000000000000A9')));
+          SquareSet(BigInt.parse('0x00000000000000A9')));
     });
 
     test('isCheck', () {
@@ -574,7 +574,7 @@ void main() {
         expect(pos.board.pieceAt(5), Piece.whiteRook);
         expect(
             pos.castles.unmovedRooks
-                .isIntersected(IraSquareSet.fromRank(0)),
+                .isIntersected(SquareSet.fromRank(0)),
             false);
         expect(pos.castles.rookOf(Side.white, CastlingSide.king), isNull);
         expect(pos.castles.rookOf(Side.white, CastlingSide.queen), isNull);

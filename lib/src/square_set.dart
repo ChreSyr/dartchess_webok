@@ -28,95 +28,90 @@ final _rank8 = BigInt.parse('0xff00000000000000');
 ///      a  b  c  d  e  f  g  h
 /// ```
 @immutable
-class IraSquareSet {
-  /// Creates a [IraSquareSet] with the provided 64bit integer value.
-  IraSquareSet(this.value) : assert(value <= _max);
+class SquareSet {
+  /// Creates a [SquareSet] with the provided 64bit integer value.
+  SquareSet(this.value) : assert(value <= _max);
 
-  /// Creates a [IraSquareSet] with a single [Square].
-  IraSquareSet.fromSquare(Square square)
+  /// Creates a [SquareSet] with a single [Square].
+  SquareSet.fromSquare(Square square)
       : value = BigInt.one << square,
         assert(square >= 0 && square < 64);
 
-  /// Creates a [IraSquareSet] from several [Square]s.
-  IraSquareSet.fromSquares(Iterable<Square> squares)
+  /// Creates a [SquareSet] from several [Square]s.
+  SquareSet.fromSquares(Iterable<Square> squares)
       : value = squares
             .map((square) => BigInt.one << square)
             .fold(BigInt.zero, (left, right) => left | right);
 
-  /// Create a [IraSquareSet] containing all squares of the given rank.
-  IraSquareSet.fromRank(int rank)
+  /// Create a [SquareSet] containing all squares of the given rank.
+  SquareSet.fromRank(int rank)
       : value = BigInt.from(0xff) << (8 * rank),
         assert(rank >= 0 && rank < 8);
 
-  /// Create a [IraSquareSet] containing all squares of the given file.
-  IraSquareSet.fromFile(int file)
+  /// Create a [SquareSet] containing all squares of the given file.
+  SquareSet.fromFile(int file)
       : value = _fileA << file,
         assert(file >= 0 && file < 8);
 
-  /// Create a [IraSquareSet] containing all squares of the given backrank [Side].
-  IraSquareSet.backrankOf(Side side)
+  /// Create a [SquareSet] containing all squares of the given backrank [Side].
+  SquareSet.backrankOf(Side side)
       : value = side == Side.white ? BigInt.from(0xff) : _rank8;
 
   /// 64 bit integer representing the square set.
   final BigInt value;
 
-  static final empty = IraSquareSet(BigInt.zero);
-  static final full = IraSquareSet(_max);
-  static final lightSquares = IraSquareSet(BigInt.parse('0x55AA55AA55AA55AA'));
-  static final darkSquares = IraSquareSet(BigInt.parse('0xAA55AA55AA55AA55'));
-  static final diagonal = IraSquareSet(BigInt.parse('0x8040201008040201'));
-  static final antidiagonal = IraSquareSet(BigInt.parse('0x0102040810204080'));
-  static final corners = IraSquareSet(BigInt.parse('0x8100000000000081'));
-  static final center = IraSquareSet(BigInt.parse('0x0000001818000000'));
-  static final backranks = IraSquareSet(BigInt.parse('0xff000000000000ff'));
+  static final empty = SquareSet(BigInt.zero);
+  static final full = SquareSet(_max);
+  static final lightSquares = SquareSet(BigInt.parse('0x55AA55AA55AA55AA'));
+  static final darkSquares = SquareSet(BigInt.parse('0xAA55AA55AA55AA55'));
+  static final diagonal = SquareSet(BigInt.parse('0x8040201008040201'));
+  static final antidiagonal = SquareSet(BigInt.parse('0x0102040810204080'));
+  static final corners = SquareSet(BigInt.parse('0x8100000000000081'));
+  static final center = SquareSet(BigInt.parse('0x0000001818000000'));
+  static final backranks = SquareSet(BigInt.parse('0xff000000000000ff'));
 
   /// Bitwise right shift
-  IraSquareSet shr(int shift) {
-    if (shift >= 64) return IraSquareSet.empty;
-    if (shift > 0) return IraSquareSet(value >> shift);
+  SquareSet shr(int shift) {
+    if (shift >= 64) return SquareSet.empty;
+    if (shift > 0) return SquareSet(value >> shift);
     return this;
   }
 
   /// Bitwise left shift
-  IraSquareSet shl(int shift) {
-    if (shift >= 64) return IraSquareSet.empty;
-    if (shift > 0) return IraSquareSet(value << shift & _max);
+  SquareSet shl(int shift) {
+    if (shift >= 64) return SquareSet.empty;
+    if (shift > 0) return SquareSet(value << shift & _max);
     return this;
   }
 
-  IraSquareSet xor(IraSquareSet other) => IraSquareSet(value ^ other.value);
-  IraSquareSet operator ^(IraSquareSet other) =>
-      IraSquareSet(value ^ other.value);
+  SquareSet xor(SquareSet other) => SquareSet(value ^ other.value);
+  SquareSet operator ^(SquareSet other) => SquareSet(value ^ other.value);
 
-  IraSquareSet union(IraSquareSet other) => IraSquareSet(value | other.value);
-  IraSquareSet operator |(IraSquareSet other) =>
-      IraSquareSet(value | other.value);
+  SquareSet union(SquareSet other) => SquareSet(value | other.value);
+  SquareSet operator |(SquareSet other) => SquareSet(value | other.value);
 
-  IraSquareSet intersect(IraSquareSet other) =>
-      IraSquareSet(value & other.value);
-  IraSquareSet operator &(IraSquareSet other) =>
-      IraSquareSet(value & other.value);
+  SquareSet intersect(SquareSet other) => SquareSet(value & other.value);
+  SquareSet operator &(SquareSet other) => SquareSet(value & other.value);
 
-  IraSquareSet minus(IraSquareSet other) => IraSquareSet(value - other.value);
-  IraSquareSet operator -(IraSquareSet other) =>
-      IraSquareSet(value - other.value);
+  SquareSet minus(SquareSet other) => SquareSet(value - other.value);
+  SquareSet operator -(SquareSet other) => SquareSet(value - other.value);
 
-  IraSquareSet complement() => IraSquareSet(~value);
+  SquareSet complement() => SquareSet(~value);
 
-  IraSquareSet diff(IraSquareSet other) => IraSquareSet(value & ~other.value);
+  SquareSet diff(SquareSet other) => SquareSet(value & ~other.value);
 
-  IraSquareSet flipVertical() {
+  SquareSet flipVertical() {
     BigInt x = ((value >> 8) & _flip1) | ((value & _flip1) << 8);
     x = ((x >> 16) & _flip2) | ((x & _flip2) << 16);
     x = (x >> 32) | (x << 32) & _max;
-    return IraSquareSet(x);
+    return SquareSet(x);
   }
 
-  IraSquareSet mirrorHorizontal() {
+  SquareSet mirrorHorizontal() {
     BigInt x = ((value >> 1) & _mirror1) | ((value & _mirror1) << 1);
     x = ((x >> 2) & _mirror2) | ((x & _mirror2) << 2);
     x = ((x >> 4) & _mirror4) | ((x & _mirror4) << 4);
-    return IraSquareSet(x);
+    return SquareSet(x);
   }
 
   int get size => _nsbBigInt(value);
@@ -136,26 +131,26 @@ class IraSquareSet {
     return value & (BigInt.one << square) != BigInt.zero;
   }
 
-  bool isIntersected(IraSquareSet other) => intersect(other).isNotEmpty;
-  bool isDisjoint(IraSquareSet other) => intersect(other).isEmpty;
+  bool isIntersected(SquareSet other) => intersect(other).isNotEmpty;
+  bool isDisjoint(SquareSet other) => intersect(other).isEmpty;
 
-  IraSquareSet withSquare(Square square) {
+  SquareSet withSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return IraSquareSet(value | (BigInt.one << square));
+    return SquareSet(value | (BigInt.one << square));
   }
 
-  IraSquareSet withoutSquare(Square square) {
+  SquareSet withoutSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return IraSquareSet(value & ~(BigInt.one << square));
+    return SquareSet(value & ~(BigInt.one << square));
   }
 
   /// Removes [Square] if present, or put it if absent.
-  IraSquareSet toggleSquare(Square square) {
+  SquareSet toggleSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return IraSquareSet(value ^ (BigInt.one << square));
+    return SquareSet(value ^ (BigInt.one << square));
   }
 
-  IraSquareSet withoutFirst() {
+  SquareSet withoutFirst() {
     final f = first;
     return f != null ? withoutSquare(f) : empty;
   }
@@ -163,7 +158,7 @@ class IraSquareSet {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is IraSquareSet &&
+        other is SquareSet &&
             other.runtimeType == runtimeType &&
             other.value == value;
   }
@@ -188,9 +183,9 @@ class IraSquareSet {
         .padLeft(8, '0');
     final stringVal = '$first$last';
     if (stringVal == '0000000000000000') {
-      return 'IraSquareSet(0)';
+      return 'SquareSet(0)';
     }
-    return 'IraSquareSet(0x$first$last)';
+    return 'SquareSet(0x$first$last)';
   }
 
   Iterable<Square> _iterateSquares() sync* {

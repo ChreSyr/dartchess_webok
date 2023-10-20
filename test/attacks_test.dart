@@ -59,7 +59,7 @@ void main() {
   });
 
   test('bishop attacks, empty board', () {
-    expect(bishopAttacks(27, IraSquareSet.empty), makeIraSquareSet('''
+    expect(bishopAttacks(27, SquareSet.empty), makeIraSquareSet('''
 . . . . . . . 1
 1 . . . . . 1 .
 . 1 . . . 1 . .
@@ -95,7 +95,7 @@ void main() {
   });
 
   test('rook attacks, empty board', () {
-    expect(rookAttacks(10, IraSquareSet.empty), makeIraSquareSet('''
+    expect(rookAttacks(10, SquareSet.empty), makeIraSquareSet('''
 . . 1 . . . . .
 . . 1 . . . . .
 . . 1 . . . . .
@@ -131,7 +131,7 @@ void main() {
   });
 
   test('queen attacks, empty board', () {
-    expect(queenAttacks(37, IraSquareSet.empty), makeIraSquareSet('''
+    expect(queenAttacks(37, SquareSet.empty), makeIraSquareSet('''
 . . 1 . . 1 . .
 . . . 1 . 1 . 1
 . . . . 1 1 1 .

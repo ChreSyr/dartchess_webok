@@ -20,55 +20,55 @@ class Board {
   });
 
   /// All occupied squares.
-  final IraSquareSet occupied;
+  final SquareSet occupied;
 
   /// All squares occupied by white pieces.
-  final IraSquareSet white;
+  final SquareSet white;
 
   /// All squares occupied by black pieces.
-  final IraSquareSet black;
+  final SquareSet black;
 
   /// All squares occupied by pawns.
-  final IraSquareSet pawns;
+  final SquareSet pawns;
 
   /// All squares occupied by knights.
-  final IraSquareSet knights;
+  final SquareSet knights;
 
   /// All squares occupied by bishops.
-  final IraSquareSet bishops;
+  final SquareSet bishops;
 
   /// All squares occupied by rooks.
-  final IraSquareSet rooks;
+  final SquareSet rooks;
 
   /// All squares occupied by queens.
-  final IraSquareSet queens;
+  final SquareSet queens;
 
   /// All squares occupied by kings.
-  final IraSquareSet kings;
+  final SquareSet kings;
 
   /// Standard chess starting position.
   static final standard = Board(
-    occupied: IraSquareSet(BigInt.parse('0xffff00000000ffff')),
-    white: IraSquareSet(BigInt.parse('0xffff')),
-    black: IraSquareSet(BigInt.parse('0xffff000000000000')),
-    pawns: IraSquareSet(BigInt.parse('0x00ff00000000ff00')),
-    knights: IraSquareSet(BigInt.parse('0x4200000000000042')),
-    bishops: IraSquareSet(BigInt.parse('0x2400000000000024')),
-    rooks: IraSquareSet.corners,
-    queens: IraSquareSet(BigInt.parse('0x0800000000000008')),
-    kings: IraSquareSet(BigInt.parse('0x1000000000000010')),
+    occupied: SquareSet(BigInt.parse('0xffff00000000ffff')),
+    white: SquareSet(BigInt.parse('0xffff')),
+    black: SquareSet(BigInt.parse('0xffff000000000000')),
+    pawns: SquareSet(BigInt.parse('0x00ff00000000ff00')),
+    knights: SquareSet(BigInt.parse('0x4200000000000042')),
+    bishops: SquareSet(BigInt.parse('0x2400000000000024')),
+    rooks: SquareSet.corners,
+    queens: SquareSet(BigInt.parse('0x0800000000000008')),
+    kings: SquareSet(BigInt.parse('0x1000000000000010')),
   );
 
   static final empty = Board(
-    occupied: IraSquareSet.empty,
-    white: IraSquareSet.empty,
-    black: IraSquareSet.empty,
-    pawns: IraSquareSet.empty,
-    knights: IraSquareSet.empty,
-    bishops: IraSquareSet.empty,
-    rooks: IraSquareSet.empty,
-    queens: IraSquareSet.empty,
-    kings: IraSquareSet.empty,
+    occupied: SquareSet.empty,
+    white: SquareSet.empty,
+    black: SquareSet.empty,
+    pawns: SquareSet.empty,
+    knights: SquareSet.empty,
+    bishops: SquareSet.empty,
+    rooks: SquareSet.empty,
+    queens: SquareSet.empty,
+    kings: SquareSet.empty,
   );
 
   /// Parse the board part of a FEN string and returns a Board.
@@ -101,8 +101,8 @@ class Board {
     return board;
   }
 
-  IraSquareSet get rooksAndQueens => rooks | queens;
-  IraSquareSet get bishopsAndQueens => bishops | queens;
+  SquareSet get rooksAndQueens => rooks | queens;
+  SquareSet get bishopsAndQueens => bishops | queens;
 
   /// Board part of the Forsyth-Edwards-Notation.
   String get fen {
@@ -145,16 +145,16 @@ class Board {
   IMap<Role, int> materialCount(Side side) => IMap.fromEntries(
       Role.values.map((role) => MapEntry(role, piecesOf(side, role).size)));
 
-  /// A [IraSquareSet] of all the pieces matching this [Side] and [Role].
-  IraSquareSet piecesOf(Side side, Role role) {
+  /// A [SquareSet] of all the pieces matching this [Side] and [Role].
+  SquareSet piecesOf(Side side, Role role) {
     return bySide(side) & byRole(role);
   }
 
   /// Gets all squares occupied by [Side].
-  IraSquareSet bySide(Side side) => side == Side.white ? white : black;
+  SquareSet bySide(Side side) => side == Side.white ? white : black;
 
   /// Gets all squares occupied by [Role].
-  IraSquareSet byRole(Role role) {
+  SquareSet byRole(Role role) {
     switch (role) {
       case Role.pawn:
         return pawns;
@@ -172,7 +172,7 @@ class Board {
   }
 
   /// Gets all squares occupied by [Piece].
-  IraSquareSet byPiece(Piece piece) {
+  SquareSet byPiece(Piece piece) {
     return bySide(piece.color) & byRole(piece.role);
   }
 
@@ -213,8 +213,7 @@ class Board {
   }
 
   /// Finds the squares who are attacking `square` by the `attacker` [Side].
-  IraSquareSet attacksTo(Square square, Side attacker,
-          {IraSquareSet? occupied}) =>
+  SquareSet attacksTo(Square square, Side attacker, {SquareSet? occupied}) =>
       bySide(attacker).intersect(rookAttacks(square, occupied ?? this.occupied)
           .intersect(rooksAndQueens)
           .union(bishopAttacks(square, occupied ?? this.occupied)
@@ -264,15 +263,15 @@ class Board {
   }
 
   Board _copyWith({
-    IraSquareSet? occupied,
-    IraSquareSet? white,
-    IraSquareSet? black,
-    IraSquareSet? pawns,
-    IraSquareSet? knights,
-    IraSquareSet? bishops,
-    IraSquareSet? rooks,
-    IraSquareSet? queens,
-    IraSquareSet? kings,
+    SquareSet? occupied,
+    SquareSet? white,
+    SquareSet? black,
+    SquareSet? pawns,
+    SquareSet? knights,
+    SquareSet? bishops,
+    SquareSet? rooks,
+    SquareSet? queens,
+    SquareSet? kings,
   }) {
     return Board(
       occupied: occupied ?? this.occupied,

@@ -25,7 +25,7 @@ void main() {
 . . 1 . . . . .
 . 1 . . . . . .
 1 . . . . . . .
-'''), IraSquareSet.diagonal);
+'''), SquareSet.diagonal);
   });
 
   test('humanReadableBoard', () {

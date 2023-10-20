@@ -142,7 +142,7 @@ abstract class Position<T extends Position<T>> {
   }
 
   /// Gets all the legal moves of this position.
-  IMap<Square, IraSquareSet> get legalMoves {
+  IMap<Square, SquareSet> get legalMoves {
     final context = _makeContext();
     return IMap({
       for (final s in board.bySide(turn).squares)
@@ -151,19 +151,18 @@ abstract class Position<T extends Position<T>> {
   }
 
   /// Gets all the legal drops of this position.
-  IraSquareSet get legalDrops => IraSquareSet.empty;
+  SquareSet get legalDrops => SquareSet.empty;
 
-  /// IraSquareSet of pieces giving check.
-  IraSquareSet get checkers {
+  /// SquareSet of pieces giving check.
+  SquareSet get checkers {
     final king = board.kingOf(turn);
     return king != null
         ? kingAttackers(king, turn.opposite)
-        : IraSquareSet.empty;
+        : SquareSet.empty;
   }
 
   /// Attacks that a king on `square` would have to deal with.
-  IraSquareSet kingAttackers(Square square, Side attacker,
-      {IraSquareSet? occupied}) {
+  SquareSet kingAttackers(Square square, Side attacker, {SquareSet? occupied}) {
     return board.attacksTo(square, attacker, occupied: occupied);
   }
 
@@ -182,8 +181,8 @@ abstract class Position<T extends Position<T>> {
     }
     if (board.bySide(side).isIntersected(board.bishops)) {
       final sameColor =
-          !board.bishops.isIntersected(IraSquareSet.darkSquares) ||
-              !board.bishops.isIntersected(IraSquareSet.lightSquares);
+          !board.bishops.isIntersected(SquareSet.darkSquares) ||
+          !board.bishops.isIntersected(SquareSet.lightSquares);
       return sameColor && board.pawns.isEmpty && board.knights.isEmpty;
     }
     return true;
@@ -196,7 +195,7 @@ abstract class Position<T extends Position<T>> {
         if (p == Role.pawn) return false;
         if (p == Role.king) return false;
         if (p != null &&
-            (!board.pawns.has(f) || !IraSquareSet.backranks.has(t))) {
+            (!board.pawns.has(f) || !SquareSet.backranks.has(t))) {
           return false;
         }
         final legalMoves = _legalMovesOf(f);
@@ -205,7 +204,7 @@ abstract class Position<T extends Position<T>> {
   }
 
   /// Gets the legal moves for that [Square].
-  IraSquareSet legalMovesOf(Square square) {
+  SquareSet legalMovesOf(Square square) {
     return _legalMovesOf(square);
   }
 
@@ -265,7 +264,7 @@ abstract class Position<T extends Position<T>> {
 
       final colorFilter = board.bySide(turn);
       final pawnFilter = board.byRole(Role.pawn);
-      IraSquareSet filter = colorFilter.intersect(pawnFilter);
+      SquareSet filter = colorFilter.intersect(pawnFilter);
       Role? promotionRole;
 
       // We can look at the first character of any pawn move
@@ -277,7 +276,7 @@ abstract class Position<T extends Position<T>> {
       }
 
       final sourceFile = sourceFileCharacter - aIndex;
-      final sourceFileFilter = IraSquareSet.fromFile(sourceFile);
+      final sourceFileFilter = SquareSet.fromFile(sourceFile);
       filter = filter.intersect(sourceFileFilter);
 
       if (isCapturing) {
@@ -318,7 +317,7 @@ abstract class Position<T extends Position<T>> {
       // There may be many pawns in the corresponding file
       // The corect choice will always be the pawn behind the destination square that is furthest down the board
       for (int rank = 0; rank < 8; rank++) {
-        final rankFilter = IraSquareSet.fromRank(rank).complement();
+        final rankFilter = SquareSet.fromRank(rank).complement();
         // If the square is behind or on this rank, the rank it will not contain the source pawn
         if (turn == Side.white && rank >= squareRank(destination) ||
             turn == Side.black && rank <= squareRank(destination)) {
@@ -328,7 +327,7 @@ abstract class Position<T extends Position<T>> {
 
       // If the pawn rank has been overspecified, then verify the rank
       if (pawnRank != null) {
-        filter = filter.intersect(IraSquareSet.fromRank(pawnRank));
+        filter = filter.intersect(SquareSet.fromRank(pawnRank));
       }
 
       final source = (turn == Side.white) ? filter.last : filter.first;
@@ -373,7 +372,7 @@ abstract class Position<T extends Position<T>> {
 
     final colorFilter = board.bySide(turn);
     final roleFilter = board.byRole(role);
-    IraSquareSet filter = colorFilter.intersect(roleFilter);
+    SquareSet filter = colorFilter.intersect(roleFilter);
 
     // The remaining characters disambiguate the moves
     if (san.length > 2) {
@@ -384,18 +383,18 @@ abstract class Position<T extends Position<T>> {
       if (sourceSquare == null) {
         return null;
       }
-      final squareFilter = IraSquareSet.fromSquare(sourceSquare);
+      final squareFilter = SquareSet.fromSquare(sourceSquare);
       filter = filter.intersect(squareFilter);
     }
     if (san.length == 1) {
       final sourceCharacter = san.codeUnits[0];
       if (oneIndex <= sourceCharacter && sourceCharacter <= eightIndex) {
         final rank = sourceCharacter - oneIndex;
-        final rankFilter = IraSquareSet.fromRank(rank);
+        final rankFilter = SquareSet.fromRank(rank);
         filter = filter.intersect(rankFilter);
       } else if (aIndex <= sourceCharacter && sourceCharacter <= hIndex) {
         final file = sourceCharacter - aIndex;
-        final fileFilter = IraSquareSet.fromFile(file);
+        final fileFilter = SquareSet.fromFile(file);
         filter = filter.intersect(fileFilter);
       } else {
         return null;
@@ -589,7 +588,7 @@ abstract class Position<T extends Position<T>> {
     if (kingAttackers(otherKing, turn).isNotEmpty) {
       throw PositionError.oppositeCheck;
     }
-    if (IraSquareSet.backranks.isIntersected(board.pawns)) {
+    if (SquareSet.backranks.isIntersected(board.pawns)) {
       throw PositionError.pawnsOnBackrank;
     }
     final skipImpossibleCheck = ignoreImpossibleCheck ?? false;
@@ -674,7 +673,7 @@ abstract class Position<T extends Position<T>> {
             san = role.char.toUpperCase();
 
             // Disambiguation
-            IraSquareSet others;
+            SquareSet others;
             if (role == Role.king) {
               others = kingAttacks(to) & board.kings;
             } else if (role == Role.queen) {
@@ -698,9 +697,9 @@ abstract class Position<T extends Position<T>> {
               if (others.isNotEmpty) {
                 bool row = false;
                 bool column = others
-                    .isIntersected(IraSquareSet.fromRank(squareRank(from)));
+                    .isIntersected(SquareSet.fromRank(squareRank(from)));
                 if (others
-                    .isIntersected(IraSquareSet.fromFile(squareFile(from)))) {
+                    .isIntersected(SquareSet.fromFile(squareFile(from)))) {
                   row = true;
                 } else {
                   column = true;
@@ -731,13 +730,13 @@ abstract class Position<T extends Position<T>> {
   ///
   /// Optionnaly pass a [_Context] of the position, to optimize performance when
   /// calling this method several times.
-  IraSquareSet _legalMovesOf(Square square, {_Context? context}) {
+  SquareSet _legalMovesOf(Square square, {_Context? context}) {
     final ctx = context ?? _makeContext();
     final piece = board.pieceAt(square);
-    if (piece == null || piece.color != turn) return IraSquareSet.empty;
+    if (piece == null || piece.color != turn) return SquareSet.empty;
 
-    IraSquareSet pseudo;
-    IraSquareSet? legalEpSquare;
+    SquareSet pseudo;
+    SquareSet? legalEpSquare;
     if (piece.role == Role.pawn) {
       pseudo = pawnAttacks(turn, square) & board.bySide(turn.opposite);
       final delta = turn == Side.white ? 8 : -8;
@@ -754,7 +753,7 @@ abstract class Position<T extends Position<T>> {
       if (epSquare != null && _canCaptureEp(square)) {
         final pawn = epSquare! - delta;
         if (ctx.checkers.isEmpty || ctx.checkers.singleSquare == pawn) {
-          legalEpSquare = IraSquareSet.fromSquare(epSquare!);
+          legalEpSquare = SquareSet.fromSquare(epSquare!);
         }
       }
     } else if (piece.role == Role.bishop) {
@@ -785,7 +784,7 @@ abstract class Position<T extends Position<T>> {
 
       if (ctx.checkers.isNotEmpty) {
         final checker = ctx.checkers.singleSquare;
-        if (checker == null) return IraSquareSet.empty;
+        if (checker == null) return SquareSet.empty;
         pseudo = pseudo & between(checker, ctx.king!).withSquare(checker);
       }
 
@@ -807,8 +806,8 @@ abstract class Position<T extends Position<T>> {
       return _Context(
           mustCapture: false,
           king: king,
-          blockers: IraSquareSet.empty,
-          checkers: IraSquareSet.empty);
+          blockers: SquareSet.empty,
+          checkers: SquareSet.empty);
     }
     return _Context(
       mustCapture: false,
@@ -818,13 +817,13 @@ abstract class Position<T extends Position<T>> {
     );
   }
 
-  IraSquareSet _sliderBlockers(Square king) {
-    final snipers = rookAttacks(king, IraSquareSet.empty)
+  SquareSet _sliderBlockers(Square king) {
+    final snipers = rookAttacks(king, SquareSet.empty)
         .intersect(board.rooksAndQueens)
-        .union(bishopAttacks(king, IraSquareSet.empty)
+        .union(bishopAttacks(king, SquareSet.empty)
             .intersect(board.bishopsAndQueens))
         .intersect(board.bySide(turn.opposite));
-    IraSquareSet blockers = IraSquareSet.empty;
+    SquareSet blockers = SquareSet.empty;
     for (final sniper in snipers.squares) {
       final b = between(king, sniper) & board.occupied;
       if (!b.moreThanOne) blockers = blockers | b;
@@ -832,15 +831,15 @@ abstract class Position<T extends Position<T>> {
     return blockers;
   }
 
-  IraSquareSet _castlingMove(CastlingSide side, _Context context) {
+  SquareSet _castlingMove(CastlingSide side, _Context context) {
     final king = context.king;
     if (king == null || context.checkers.isNotEmpty) {
-      return IraSquareSet.empty;
+      return SquareSet.empty;
     }
     final rook = castles.rookOf(turn, side);
-    if (rook == null) return IraSquareSet.empty;
+    if (rook == null) return SquareSet.empty;
     if (castles.pathOf(turn, side).isIntersected(board.occupied)) {
-      return IraSquareSet.empty;
+      return SquareSet.empty;
     }
 
     final kingTo = _kingCastlesTo(turn, side);
@@ -848,7 +847,7 @@ abstract class Position<T extends Position<T>> {
     final occ = board.occupied.withoutSquare(king);
     for (final sq in kingPath.squares) {
       if (kingAttackers(sq, turn.opposite, occupied: occ).isNotEmpty) {
-        return IraSquareSet.empty;
+        return SquareSet.empty;
       }
     }
     final rookTo = _rookCastlesTo(turn, side);
@@ -857,9 +856,9 @@ abstract class Position<T extends Position<T>> {
         .toggleSquare(rook)
         .toggleSquare(rookTo);
     if (kingAttackers(kingTo, turn.opposite, occupied: after).isNotEmpty) {
-      return IraSquareSet.empty;
+      return SquareSet.empty;
     }
-    return IraSquareSet.fromSquare(rook);
+    return SquareSet.fromSquare(rook);
   }
 
   bool _canCaptureEp(Square pawn) {
@@ -1058,17 +1057,17 @@ class PositionError implements Exception {
 
 @immutable
 class Castles {
-  /// IraSquareSet of rooks that have not moved yet.
-  final IraSquareSet unmovedRooks;
+  /// SquareSet of rooks that have not moved yet.
+  final SquareSet unmovedRooks;
 
   final Square? _whiteRookQueenSide;
   final Square? _whiteRookKingSide;
   final Square? _blackRookQueenSide;
   final Square? _blackRookKingSide;
-  final IraSquareSet _whitePathQueenSide;
-  final IraSquareSet _whitePathKingSide;
-  final IraSquareSet _blackPathQueenSide;
-  final IraSquareSet _blackPathKingSide;
+  final SquareSet _whitePathQueenSide;
+  final SquareSet _whitePathKingSide;
+  final SquareSet _blackPathQueenSide;
+  final SquareSet _blackPathKingSide;
 
   const Castles({
     required this.unmovedRooks,
@@ -1076,10 +1075,10 @@ class Castles {
     required Square? whiteRookKingSide,
     required Square? blackRookQueenSide,
     required Square? blackRookKingSide,
-    required IraSquareSet whitePathQueenSide,
-    required IraSquareSet whitePathKingSide,
-    required IraSquareSet blackPathQueenSide,
-    required IraSquareSet blackPathKingSide,
+    required SquareSet whitePathQueenSide,
+    required SquareSet whitePathKingSide,
+    required SquareSet blackPathQueenSide,
+    required SquareSet blackPathKingSide,
   })  : _whiteRookQueenSide = whiteRookQueenSide,
         _whiteRookKingSide = whiteRookKingSide,
         _blackRookQueenSide = blackRookQueenSide,
@@ -1090,34 +1089,34 @@ class Castles {
         _blackPathKingSide = blackPathKingSide;
 
   static final standard = Castles(
-    unmovedRooks: IraSquareSet.corners,
+    unmovedRooks: SquareSet.corners,
     whiteRookQueenSide: Squares.a1,
     whiteRookKingSide: Squares.h1,
     blackRookQueenSide: Squares.a8,
     blackRookKingSide: Squares.h8,
-    whitePathQueenSide: IraSquareSet(BigInt.parse('0x000000000000000e')),
-    whitePathKingSide: IraSquareSet(BigInt.parse('0x0000000000000060')),
-    blackPathQueenSide: IraSquareSet(BigInt.parse('0x0e00000000000000')),
-    blackPathKingSide: IraSquareSet(BigInt.parse('0x6000000000000000')),
+    whitePathQueenSide: SquareSet(BigInt.parse('0x000000000000000e')),
+    whitePathKingSide: SquareSet(BigInt.parse('0x0000000000000060')),
+    blackPathQueenSide: SquareSet(BigInt.parse('0x0e00000000000000')),
+    blackPathKingSide: SquareSet(BigInt.parse('0x6000000000000000')),
   );
 
   static final empty = Castles(
-    unmovedRooks: IraSquareSet.empty,
+    unmovedRooks: SquareSet.empty,
     whiteRookQueenSide: null,
     whiteRookKingSide: null,
     blackRookQueenSide: null,
     blackRookKingSide: null,
-    whitePathQueenSide: IraSquareSet.empty,
-    whitePathKingSide: IraSquareSet.empty,
-    blackPathQueenSide: IraSquareSet.empty,
-    blackPathKingSide: IraSquareSet.empty,
+    whitePathQueenSide: SquareSet.empty,
+    whitePathKingSide: SquareSet.empty,
+    blackPathQueenSide: SquareSet.empty,
+    blackPathKingSide: SquareSet.empty,
   );
 
   factory Castles.fromSetup(Setup setup) {
     Castles castles = Castles.empty;
     final rooks = setup.unmovedRooks & setup.board.rooks;
     for (final side in Side.values) {
-      final backrank = IraSquareSet.backrankOf(side);
+      final backrank = SquareSet.backrankOf(side);
       final king = setup.board.kingOf(side);
       if (king == null || !backrank.has(king)) continue;
       final backrankRooks = rooks & setup.board.bySide(side) & backrank;
@@ -1148,7 +1147,7 @@ class Castles {
   }
 
   /// Gets rooks paths by side and castling side.
-  BySide<ByCastlingSide<IraSquareSet>> get paths {
+  BySide<ByCastlingSide<SquareSet>> get paths {
     return BySide({
       Side.white: ByCastlingSide({
         CastlingSide.queen: _whitePathQueenSide,
@@ -1174,7 +1173,7 @@ class Castles {
   /// on the given side.
   ///
   /// We're assuming the player still has the required castling rigths.
-  IraSquareSet pathOf(Side side, CastlingSide cs) => cs == CastlingSide.queen
+  SquareSet pathOf(Side side, CastlingSide cs) => cs == CastlingSide.queen
       ? side == Side.white
           ? _whitePathQueenSide
           : _blackPathQueenSide
@@ -1196,7 +1195,7 @@ class Castles {
 
   Castles discardSide(Side side) {
     return _copyWith(
-      unmovedRooks: unmovedRooks.diff(IraSquareSet.backrankOf(side)),
+      unmovedRooks: unmovedRooks.diff(SquareSet.backrankOf(side)),
       whiteRookQueenSide: side == Side.white ? const Box(null) : null,
       whiteRookKingSide: side == Side.white ? const Box(null) : null,
       blackRookQueenSide: side == Side.black ? const Box(null) : null,
@@ -1234,15 +1233,15 @@ class Castles {
   }
 
   Castles _copyWith({
-    IraSquareSet? unmovedRooks,
+    SquareSet? unmovedRooks,
     Box<Square?>? whiteRookQueenSide,
     Box<Square?>? whiteRookKingSide,
     Box<Square?>? blackRookQueenSide,
     Box<Square?>? blackRookKingSide,
-    IraSquareSet? whitePathQueenSide,
-    IraSquareSet? whitePathKingSide,
-    IraSquareSet? blackPathQueenSide,
-    IraSquareSet? blackPathKingSide,
+    SquareSet? whitePathQueenSide,
+    SquareSet? whitePathKingSide,
+    SquareSet? blackPathQueenSide,
+    SquareSet? blackPathKingSide,
   }) {
     return Castles(
       unmovedRooks: unmovedRooks ?? this.unmovedRooks,
@@ -1308,14 +1307,14 @@ class _Context {
 
   final bool mustCapture;
   final Square? king;
-  final IraSquareSet blockers;
-  final IraSquareSet checkers;
+  final SquareSet blockers;
+  final SquareSet checkers;
 
   _Context copyWith({
     bool? mustCapture,
     Square? king,
-    IraSquareSet? blockers,
-    IraSquareSet? checkers,
+    SquareSet? blockers,
+    SquareSet? checkers,
   }) {
     return _Context(
       mustCapture: mustCapture ?? this.mustCapture,
