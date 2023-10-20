@@ -109,7 +109,7 @@ void main() {
     });
 
     test('parse basic san', () {
-      const position = Chess.initial;
+      final position = Chess.initial;
       expect(
           position.parseSan('e4'), equals(const NormalMove(from: 12, to: 28)));
       expect(
@@ -149,7 +149,7 @@ void main() {
 
     test('cannot parse drop moves in Chess', () {
       const illegalMoves = ['Q@e3', 'N@d4'];
-      const position = Chess.initial;
+      final position = Chess.initial;
       for (final move in illegalMoves) {
         expect(position.parseSan(move), equals(null));
       }
@@ -201,7 +201,7 @@ void main() {
         'h5',
         'h?1',
       ];
-      const position = Chess.initial;
+      final position = Chess.initial;
       for (final san in legalSans) {
         expect(position.parseSan(san) != null, true);
       }
@@ -229,7 +229,7 @@ void main() {
         'Ng1',
       ];
 
-      const position = Chess.initial;
+      final position = Chess.initial;
       for (final san in legalSans) {
         expect(position.parseSan(san) != null, true);
       }
@@ -240,7 +240,7 @@ void main() {
     });
 
     test('overspecified pawn move', () {
-      const position = Chess.initial;
+      final position = Chess.initial;
       expect(
           position.parseSan('2e4'), equals(const NormalMove(from: 12, to: 28)));
     });
@@ -339,21 +339,21 @@ void main() {
     test('standard position legal moves', () {
       final moves = IMap({
         0: IraSquareSet.empty,
-        1: const IraSquareSet.fromSquare(16).withSquare(18),
+        1: IraSquareSet.fromSquare(16).withSquare(18),
         2: IraSquareSet.empty,
         3: IraSquareSet.empty,
         4: IraSquareSet.empty,
         5: IraSquareSet.empty,
-        6: const IraSquareSet.fromSquare(21).withSquare(23),
+        6: IraSquareSet.fromSquare(21).withSquare(23),
         7: IraSquareSet.empty,
-        8: const IraSquareSet.fromSquare(16).withSquare(24),
-        9: const IraSquareSet.fromSquare(17).withSquare(25),
-        10: const IraSquareSet.fromSquare(18).withSquare(26),
-        11: const IraSquareSet.fromSquare(19).withSquare(27),
-        12: const IraSquareSet.fromSquare(20).withSquare(28),
-        13: const IraSquareSet.fromSquare(21).withSquare(29),
-        14: const IraSquareSet.fromSquare(22).withSquare(30),
-        15: const IraSquareSet.fromSquare(23).withSquare(31),
+        8: IraSquareSet.fromSquare(16).withSquare(24),
+        9: IraSquareSet.fromSquare(17).withSquare(25),
+        10: IraSquareSet.fromSquare(18).withSquare(26),
+        11: IraSquareSet.fromSquare(19).withSquare(27),
+        12: IraSquareSet.fromSquare(20).withSquare(28),
+        13: IraSquareSet.fromSquare(21).withSquare(29),
+        14: IraSquareSet.fromSquare(22).withSquare(30),
+        15: IraSquareSet.fromSquare(23).withSquare(31),
       });
       expect(Chess.initial.legalMoves, equals(moves));
     });
@@ -371,7 +371,8 @@ void main() {
     test('castling legal moves', () {
       final pos = Chess.fromSetup(Setup.parseFen(
           'r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1'));
-      expect(pos.legalMovesOf(4), const IraSquareSet(0x00000000000000A9));
+      expect(pos.legalMovesOf(4),
+          IraSquareSet(BigInt.parse('0x00000000000000A9')));
     });
 
     test('isCheck', () {
@@ -573,7 +574,7 @@ void main() {
         expect(pos.board.pieceAt(5), Piece.whiteRook);
         expect(
             pos.castles.unmovedRooks
-                .isIntersected(const IraSquareSet.fromRank(0)),
+                .isIntersected(IraSquareSet.fromRank(0)),
             false);
         expect(pos.castles.rookOf(Side.white, CastlingSide.king), isNull);
         expect(pos.castles.rookOf(Side.white, CastlingSide.queen), isNull);

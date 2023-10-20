@@ -16,10 +16,11 @@ void main() {
     expect(IraSquareSet.corners.toString(), 'IraSquareSet(0x8100000000000081)');
     expect(
         IraSquareSet.backranks.toString(), 'IraSquareSet(0xFF000000000000FF)');
-    expect(const IraSquareSet(0x0000000000000001).toString(),
+    expect(IraSquareSet(BigInt.parse('0x0000000000000001')).toString(),
         'IraSquareSet(0x0000000000000001)');
     expect(
-        const IraSquareSet(0xf).toString(), 'IraSquareSet(0x000000000000000F)');
+        IraSquareSet(BigInt.parse('0xf')).toString(),
+        'IraSquareSet(0x000000000000000F)');
   });
 
   test('full set has all', () {
@@ -37,23 +38,23 @@ void main() {
   });
 
   test('shr', () {
-    const r = IraSquareSet(0xe0a12221e222212);
+    final r = IraSquareSet(BigInt.parse('0xe0a12221e222212'));
     expect(r.shr(0), r);
-    expect(r.shr(1), const IraSquareSet(0x70509110f111109));
-    expect(r.shr(3), const IraSquareSet(0x1c1424443c44442));
-    expect(r.shr(48), const IraSquareSet(0xe0a));
+    expect(r.shr(1), IraSquareSet(BigInt.parse('0x70509110f111109')));
+    expect(r.shr(3), IraSquareSet(BigInt.parse('0x1c1424443c44442')));
+    expect(r.shr(48), IraSquareSet(BigInt.parse('0xe0a')));
     expect(r.shr(62), IraSquareSet.empty);
   });
 
   test('shl', () {
-    const r = IraSquareSet(0xe0a12221e222212);
+    final r = IraSquareSet(BigInt.parse('0xe0a12221e222212'));
     expect(r.shl(0), r);
-    expect(r.shl(1), const IraSquareSet(0x1c1424443c444424));
-    expect(r.shl(3), const IraSquareSet(0x70509110f1111090));
-    expect(r.shl(10), const IraSquareSet(0x2848887888884800));
-    expect(r.shl(32), const IraSquareSet(0x1e22221200000000));
-    expect(r.shl(48), const IraSquareSet(0x2212000000000000));
-    expect(r.shl(62), const IraSquareSet(0x8000000000000000));
+    expect(r.shl(1), IraSquareSet(BigInt.parse('0x1c1424443c444424')));
+    expect(r.shl(3), IraSquareSet(BigInt.parse('0x70509110f1111090')));
+    expect(r.shl(10), IraSquareSet(BigInt.parse('0x2848887888884800')));
+    expect(r.shl(32), IraSquareSet(BigInt.parse('0x1e22221200000000')));
+    expect(r.shl(48), IraSquareSet(BigInt.parse('0x2212000000000000')));
+    expect(r.shl(62), IraSquareSet(BigInt.parse('0x8000000000000000')));
     expect(r.shl(63), IraSquareSet.empty);
   });
 
@@ -82,15 +83,15 @@ void main() {
   test('more that one', () {
     expect(IraSquareSet.empty.moreThanOne, false);
     expect(IraSquareSet.full.moreThanOne, true);
-    expect(const IraSquareSet.fromSquare(4).moreThanOne, false);
-    expect(const IraSquareSet.fromSquare(4).withSquare(5).moreThanOne, true);
+    expect(IraSquareSet.fromSquare(4).moreThanOne, false);
+    expect(IraSquareSet.fromSquare(4).withSquare(5).moreThanOne, true);
   });
 
   test('singleSquare', () {
     expect(IraSquareSet.empty.singleSquare, null);
     expect(IraSquareSet.full.singleSquare, null);
-    expect(const IraSquareSet.fromSquare(4).singleSquare, 4);
-    expect(const IraSquareSet.fromSquare(4).withSquare(5).singleSquare, null);
+    expect(IraSquareSet.fromSquare(4).singleSquare, 4);
+    expect(IraSquareSet.fromSquare(4).withSquare(5).singleSquare, null);
   });
 
   test('squares', () {
@@ -111,20 +112,24 @@ void main() {
 
   test('from file', () {
     expect(
-        const IraSquareSet.fromFile(0), const IraSquareSet(0x0101010101010101));
+        IraSquareSet.fromFile(0),
+        IraSquareSet(BigInt.parse('0x0101010101010101')));
     expect(
-        const IraSquareSet.fromFile(7), const IraSquareSet(0x8080808080808080));
+        IraSquareSet.fromFile(7),
+        IraSquareSet(BigInt.parse('0x8080808080808080')));
   });
 
   test('from rank', () {
     expect(
-        const IraSquareSet.fromRank(0), const IraSquareSet(0x00000000000000FF));
+        IraSquareSet.fromRank(0),
+        IraSquareSet(BigInt.parse('0x00000000000000FF')));
     expect(
-        const IraSquareSet.fromRank(7), const IraSquareSet(0xFF00000000000000));
+        IraSquareSet.fromRank(7),
+        IraSquareSet(BigInt.parse('0xFF00000000000000')));
   });
 
   test('from square', () {
-    expect(const IraSquareSet.fromSquare(42), makeIraSquareSet('''
+    expect(IraSquareSet.fromSquare(42), makeIraSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . 1 . . . . .

@@ -9,7 +9,6 @@ import './utils.dart';
 /// Example:
 /// ```dart
 /// final str = '''
-/// . . . . . . . .
 /// . 1 1 1 . . . .
 /// . 1 . 1 . . . .
 /// . 1 . . 1 . . .
@@ -18,10 +17,9 @@ import './utils.dart';
 /// . 1 . . . 1 . .
 /// . 1 . . . 1 . .
 /// . 1 . . 1 . . .
-/// . 1 1 1 . . . .
 /// '''
 /// final squareSet = makeIraSquareSet(str);
-/// // IraSquareSet(0x000E0A12221E2222120E)
+/// // IraSquareSet(0x0E0A12221E222212)
 /// ```
 IraSquareSet makeIraSquareSet(String rep) {
   IraSquareSet ret = IraSquareSet.empty;

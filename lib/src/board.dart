@@ -47,44 +47,19 @@ class Board {
   final IraSquareSet kings;
 
   /// Standard chess starting position.
-  static const standard = Board(
-    occupied: IraSquareSet(0xffff00000000ffff),
-    white: IraSquareSet(0xffff),
-    black: IraSquareSet(0xffff000000000000),
-    pawns: IraSquareSet(0x00ff00000000ff00),
-    knights: IraSquareSet(0x4200000000000042),
-    bishops: IraSquareSet(0x2400000000000024),
+  static final standard = Board(
+    occupied: IraSquareSet(BigInt.parse('0xffff00000000ffff')),
+    white: IraSquareSet(BigInt.parse('0xffff')),
+    black: IraSquareSet(BigInt.parse('0xffff000000000000')),
+    pawns: IraSquareSet(BigInt.parse('0x00ff00000000ff00')),
+    knights: IraSquareSet(BigInt.parse('0x4200000000000042')),
+    bishops: IraSquareSet(BigInt.parse('0x2400000000000024')),
     rooks: IraSquareSet.corners,
-    queens: IraSquareSet(0x0800000000000008),
-    kings: IraSquareSet(0x1000000000000010),
+    queens: IraSquareSet(BigInt.parse('0x0800000000000008')),
+    kings: IraSquareSet(BigInt.parse('0x1000000000000010')),
   );
 
-  /// Racing Kings start position
-  static const racingKings = Board(
-      occupied: IraSquareSet(0xffff),
-      white: IraSquareSet(0xf0f0),
-      black: IraSquareSet(0x0f0f),
-      pawns: IraSquareSet.empty,
-      knights: IraSquareSet(0x1818),
-      bishops: IraSquareSet(0x2424),
-      rooks: IraSquareSet(0x4242),
-      queens: IraSquareSet(0x0081),
-      kings: IraSquareSet(0x8100));
-
-  /// Horde start Positioin
-  static const horde = Board(
-    occupied: IraSquareSet(0xffff0066ffffffff),
-    white: IraSquareSet(0x00000066ffffffff),
-    black: IraSquareSet(0xffff000000000000),
-    pawns: IraSquareSet(0x00ff0066ffffffff),
-    knights: IraSquareSet(0x4200000000000000),
-    bishops: IraSquareSet(0x2400000000000000),
-    rooks: IraSquareSet(0x8100000000000000),
-    queens: IraSquareSet(0x0800000000000000),
-    kings: IraSquareSet(0x1000000000000000),
-  );
-
-  static const empty = Board(
+  static final empty = Board(
     occupied: IraSquareSet.empty,
     white: IraSquareSet.empty,
     black: IraSquareSet.empty,

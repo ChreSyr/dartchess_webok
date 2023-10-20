@@ -41,7 +41,7 @@ abstract class Position<T extends Position<T>> {
   final int fullmoves;
 
   /// Abstract const constructor to be used by subclasses.
-  const Position._initial()
+  Position._initial()
       : board = Board.standard,
         turn = Side.white,
         castles = Castles.standard,
@@ -920,9 +920,9 @@ class Chess extends Position<Chess> {
   });
 
   Chess._fromSetupUnchecked(super.setup) : super._fromSetupUnchecked();
-  const Chess._initial() : super._initial();
+  Chess._initial() : super._initial();
 
-  static const initial = Chess._initial();
+  static final initial = Chess._initial();
 
   /// Set up a playable [Chess] position.
   ///
@@ -1089,19 +1089,19 @@ class Castles {
         _blackPathQueenSide = blackPathQueenSide,
         _blackPathKingSide = blackPathKingSide;
 
-  static const standard = Castles(
+  static final standard = Castles(
     unmovedRooks: IraSquareSet.corners,
     whiteRookQueenSide: Squares.a1,
     whiteRookKingSide: Squares.h1,
     blackRookQueenSide: Squares.a8,
     blackRookKingSide: Squares.h8,
-    whitePathQueenSide: IraSquareSet(0x000000000000000e),
-    whitePathKingSide: IraSquareSet(0x0000000000000060),
-    blackPathQueenSide: IraSquareSet(0x0e00000000000000),
-    blackPathKingSide: IraSquareSet(0x6000000000000000),
+    whitePathQueenSide: IraSquareSet(BigInt.parse('0x000000000000000e')),
+    whitePathKingSide: IraSquareSet(BigInt.parse('0x0000000000000060')),
+    blackPathQueenSide: IraSquareSet(BigInt.parse('0x0e00000000000000')),
+    blackPathKingSide: IraSquareSet(BigInt.parse('0x6000000000000000')),
   );
 
-  static const empty = Castles(
+  static final empty = Castles(
     unmovedRooks: IraSquareSet.empty,
     whiteRookQueenSide: null,
     whiteRookKingSide: null,

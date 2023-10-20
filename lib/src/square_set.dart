@@ -24,47 +24,49 @@ class IraSquareSet {
   const IraSquareSet(this.value);
 
   /// Creates a [IraSquareSet] with a single [Square].
-  const IraSquareSet.fromSquare(Square square)
-      : value = 1 << square,
+  IraSquareSet.fromSquare(Square square)
+      : value = BigInt.one << square,
         assert(square >= 0 && square < 64);
 
   /// Creates a [IraSquareSet] from several [Square]s.
   IraSquareSet.fromSquares(Iterable<Square> squares)
       : value = squares
-            .map((square) => 1 << square)
-            .fold(0, (left, right) => left | right);
+            .map((square) => BigInt.one << square)
+            .fold(BigInt.zero, (left, right) => left | right);
 
   /// Create a [IraSquareSet] containing all squares of the given rank.
-  const IraSquareSet.fromRank(int rank)
-      : value = 0xff << (8 * rank),
+  IraSquareSet.fromRank(int rank)
+      : value = BigInt.from(0xff) << (8 * rank),
         assert(rank >= 0 && rank < 8);
 
   /// Create a [IraSquareSet] containing all squares of the given file.
-  const IraSquareSet.fromFile(int file)
-      : value = 0x0101010101010101 << file,
+  IraSquareSet.fromFile(int file)
+      : value = BigInt.parse('0x0101010101010101') << file,
         assert(file >= 0 && file < 8);
 
   /// Create a [IraSquareSet] containing all squares of the given backrank [Side].
-  const IraSquareSet.backrankOf(Side side)
-      : value = side == Side.white ? 0xff : 0xff00000000000000;
+  IraSquareSet.backrankOf(Side side)
+      : value = side == Side.white
+            ? BigInt.from(0xff)
+            : BigInt.parse('0xff00000000000000');
 
   /// 64 bit integer representing the square set.
-  final int value;
+  final BigInt value;
 
-  static const empty = IraSquareSet(0);
-  static const full = IraSquareSet(0xffffffffffffffff);
-  static const lightSquares = IraSquareSet(0x55AA55AA55AA55AA);
-  static const darkSquares = IraSquareSet(0xAA55AA55AA55AA55);
-  static const diagonal = IraSquareSet(0x8040201008040201);
-  static const antidiagonal = IraSquareSet(0x0102040810204080);
-  static const corners = IraSquareSet(0x8100000000000081);
-  static const center = IraSquareSet(0x0000001818000000);
-  static const backranks = IraSquareSet(0xff000000000000ff);
+  static final empty = IraSquareSet(BigInt.zero);
+  static final full = IraSquareSet(BigInt.parse('0xffffffffffffffff'));
+  static final lightSquares = IraSquareSet(BigInt.parse('0x55AA55AA55AA55AA'));
+  static final darkSquares = IraSquareSet(BigInt.parse('0xAA55AA55AA55AA55'));
+  static final diagonal = IraSquareSet(BigInt.parse('0x8040201008040201'));
+  static final antidiagonal = IraSquareSet(BigInt.parse('0x0102040810204080'));
+  static final corners = IraSquareSet(BigInt.parse('0x8100000000000081'));
+  static final center = IraSquareSet(BigInt.parse('0x0000001818000000'));
+  static final backranks = IraSquareSet(BigInt.parse('0xff000000000000ff'));
 
   /// Bitwise right shift
   IraSquareSet shr(int shift) {
     if (shift >= 64) return IraSquareSet.empty;
-    if (shift > 0) return IraSquareSet(value >>> shift);
+    if (shift > 0) return IraSquareSet(value >> shift);
     return this;
   }
 
@@ -97,31 +99,31 @@ class IraSquareSet {
   IraSquareSet diff(IraSquareSet other) => IraSquareSet(value & ~other.value);
 
   IraSquareSet flipVertical() {
-    const k1 = 0x00FF00FF00FF00FF;
-    const k2 = 0x0000FFFF0000FFFF;
-    int x = ((value >>> 8) & k1) | ((value & k1) << 8);
-    x = ((x >>> 16) & k2) | ((x & k2) << 16);
-    x = (x >>> 32) | (x << 32);
+    final k1 = BigInt.parse('0x00FF00FF00FF00FF');
+    final k2 = BigInt.parse('0x0000FFFF0000FFFF');
+    BigInt x = ((value >> 8) & k1) | ((value & k1) << 8);
+    x = ((x >> 16) & k2) | ((x & k2) << 16);
+    x = (x >> 32) | (x << 32);
     return IraSquareSet(x);
   }
 
   IraSquareSet mirrorHorizontal() {
-    const k1 = 0x5555555555555555;
-    const k2 = 0x3333333333333333;
-    const k4 = 0x0f0f0f0f0f0f0f0f;
-    int x = ((value >>> 1) & k1) | ((value & k1) << 1);
-    x = ((x >>> 2) & k2) | ((x & k2) << 2);
-    x = ((x >>> 4) & k4) | ((x & k4) << 4);
+    final k1 = BigInt.parse('0x5555555555555555');
+    final k2 = BigInt.parse('0x3333333333333333');
+    final k4 = BigInt.parse('0x0f0f0f0f0f0f0f0f');
+    BigInt x = ((value >> 1) & k1) | ((value & k1) << 1);
+    x = ((x >> 2) & k2) | ((x & k2) << 2);
+    x = ((x >> 4) & k4) | ((x & k4) << 4);
     return IraSquareSet(x);
   }
 
-  int get size => _popcnt64(value);
-  bool get isEmpty => value == 0;
-  bool get isNotEmpty => value != 0;
+  int get size => _nsbBigInt(value);
+  bool get isEmpty => value == BigInt.zero;
+  bool get isNotEmpty => value != BigInt.zero;
   int? get first => _getFirstSquare(value);
   int? get last => _getLastSquare(value);
   Iterable<Square> get squares => _iterateSquares();
-  Iterable<Square> get squaresReversed => _iterateSquaresReversed();
+  Iterable<Square> get squaresReversed => squares.toList().reversed;
   bool get moreThanOne => isNotEmpty && size > 1;
 
   /// Returns square if it is single, otherwise returns null.
@@ -129,7 +131,7 @@ class IraSquareSet {
 
   bool has(Square square) {
     assert(square >= 0 && square < 64);
-    return value & (1 << square) != 0;
+    return value & (BigInt.one << square) != BigInt.zero;
   }
 
   bool isIntersected(IraSquareSet other) => intersect(other).isNotEmpty;
@@ -137,18 +139,18 @@ class IraSquareSet {
 
   IraSquareSet withSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return IraSquareSet(value | (1 << square));
+    return IraSquareSet(value | (BigInt.one << square));
   }
 
   IraSquareSet withoutSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return IraSquareSet(value & ~(1 << square));
+    return IraSquareSet(value & ~(BigInt.one << square));
   }
 
   /// Removes [Square] if present, or put it if absent.
   IraSquareSet toggleSquare(Square square) {
     assert(square >= 0 && square < 64);
-    return IraSquareSet(value ^ (1 << square));
+    return IraSquareSet(value ^ (BigInt.one << square));
   }
 
   IraSquareSet withoutFirst() {
@@ -190,63 +192,63 @@ class IraSquareSet {
   }
 
   Iterable<Square> _iterateSquares() sync* {
-    int bitboard = value;
-    while (bitboard != 0) {
+    BigInt bitboard = value;
+    while (bitboard != BigInt.zero) {
       final square = _getFirstSquare(bitboard);
-      bitboard ^= 1 << square!;
+      bitboard ^= BigInt.one << square!;
       yield square;
     }
   }
 
-  Iterable<Square> _iterateSquaresReversed() sync* {
-    int bitboard = value;
-    while (bitboard != 0) {
-      final square = _getLastSquare(bitboard);
-      bitboard ^= 1 << square!;
-      yield square;
-    }
-  }
-
-  int? _getFirstSquare(int bitboard) {
-    final ntz = _ntz64(bitboard);
+  /// Return the position of the lowest bit
+  int? _getFirstSquare(BigInt bitboard) {
+    final ntz = _ntzBigInt(bitboard);
     return ntz >= 0 && ntz < 64 ? ntz : null;
   }
 
-  int? _getLastSquare(int bitboard) {
-    if (bitboard == 0) return null;
-    return 63 - _nlz64(bitboard);
+  /// Return the position of the highest bit
+  int? _getLastSquare(BigInt bitboard) {
+    if (bitboard == BigInt.zero) return null;
+
+    int lastSquare = 0;
+    var bigInt = bitboard;
+    while (bigInt > BigInt.one) {
+      bigInt >>= 1;
+      lastSquare++;
+    }
+
+    return lastSquare;
   }
 }
 
-int _popcnt64(int n) {
-  final count2 = n - ((n >>> 1) & 0x5555555555555555);
-  final count4 =
-      (count2 & 0x3333333333333333) + ((count2 >>> 2) & 0x3333333333333333);
-  final count8 = (count4 + (count4 >>> 4)) & 0x0f0f0f0f0f0f0f0f;
-  return (count8 * 0x0101010101010101) >>> 56;
+/// Return the Number of Set Bits in a BigInt
+int _nsbBigInt(BigInt bigInt) {
+  int count = 0;
+
+  var big = bigInt;
+  while (big > BigInt.zero) {
+    if (big & BigInt.one == BigInt.one) {
+      count++;
+    }
+
+    big >>= 1;
+  }
+
+  return count;
 }
 
-int _nlz64(int x) {
-  int r = x;
-  r |= r >>> 1;
-  r |= r >>> 2;
-  r |= r >>> 4;
-  r |= r >>> 8;
-  r |= r >>> 16;
-  r |= r >>> 32;
-  return 64 - _popcnt64(r);
-}
+/// Return the Number of Trailing Zeros in a BigInt
+int _ntzBigInt(BigInt bigInt) {
+  if (bigInt == BigInt.zero) {
+    return -1;
+  }
 
-// from https://gist.github.com/jtmcdole/297434f327077dbfe5fb19da3b4ef5be
-int _ntz64(int x) => _ntzLut64[(x & -x) % 131];
-const _ntzLut64 = [
-  64, 0, 1, -1, 2, 46, -1, -1, 3, 14, 47, 56, -1, 18, -1, //
-  -1, 4, 43, 15, 35, 48, 38, 57, 23, -1, -1, 19, -1, -1, 51,
-  -1, 29, 5, 63, 44, 12, 16, 41, 36, -1, 49, -1, 39, -1, 58,
-  60, 24, -1, -1, 62, -1, -1, 20, 26, -1, -1, -1, -1, 52, -1,
-  -1, -1, 30, -1, 6, -1, -1, -1, 45, -1, 13, 55, 17, -1, 42,
-  34, 37, 22, -1, -1, 50, 28, -1, 11, 40, -1, -1, -1, 59,
-  -1, 61, -1, 25, -1, -1, -1, -1, -1, -1, -1, -1, 54, -1,
-  33, 21, -1, 27, 10, -1, -1, -1, -1, -1, -1, -1, -1, 53,
-  32, -1, 9, -1, -1, -1, -1, 31, 8, -1, -1, 7, -1, -1,
-];
+  int count = 0;
+  var big = bigInt;
+  while (big & BigInt.one == BigInt.zero) {
+    big >>= 1;
+    count++;
+  }
+
+  return count;
+}

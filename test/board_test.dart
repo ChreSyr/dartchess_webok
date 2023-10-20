@@ -22,21 +22,21 @@ void main() {
   test('setPieceAt', () {
     const piece = Piece.whiteKing;
     final board = Board.empty.setPieceAt(0, piece);
-    expect(board.occupied, const IraSquareSet(0x0000000000000001));
+    expect(board.occupied, IraSquareSet(BigInt.parse('0x0000000000000001')));
     expect(board.pieces.length, 1);
     expect(board.pieceAt(0), piece);
 
     final board2 = Board.standard.setPieceAt(60, piece);
     expect(board2.pieceAt(60), piece);
-    expect(board2.white, const IraSquareSet(0x100000000000FFFF));
+    expect(board2.white, IraSquareSet(BigInt.parse('0x100000000000FFFF')));
 
-    expect(board2.black, const IraSquareSet(0xEFFF000000000000));
-    expect(board2.pawns, const IraSquareSet(0x00FF00000000FF00));
-    expect(board2.knights, const IraSquareSet(0x4200000000000042));
-    expect(board2.bishops, const IraSquareSet(0x2400000000000024));
+    expect(board2.black, IraSquareSet(BigInt.parse('0xEFFF000000000000')));
+    expect(board2.pawns, IraSquareSet(BigInt.parse('0x00FF00000000FF00')));
+    expect(board2.knights, IraSquareSet(BigInt.parse('0x4200000000000042')));
+    expect(board2.bishops, IraSquareSet(BigInt.parse('0x2400000000000024')));
     expect(board2.rooks, IraSquareSet.corners);
-    expect(board2.queens, const IraSquareSet(0x0800000000000008));
-    expect(board2.kings, const IraSquareSet(0x1000000000000010));
+    expect(board2.queens, IraSquareSet(BigInt.parse('0x0800000000000008')));
+    expect(board2.kings, IraSquareSet(BigInt.parse('0x1000000000000010')));
   });
 
   test('removePieceAt', () {

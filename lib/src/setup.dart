@@ -42,7 +42,7 @@ class Setup {
     this.remainingChecks,
   });
 
-  static const standard = Setup(
+  static final standard = Setup(
     board: Board.standard,
     turn: Side.white,
     unmovedRooks: IraSquareSet.corners,
@@ -237,8 +237,8 @@ IraSquareSet _parseCastlingFen(Board board, String castlingPart) {
       }
     }
   }
-  if ((const IraSquareSet.fromRank(0) & unmovedRooks).size > 2 ||
-      (const IraSquareSet.fromRank(7) & unmovedRooks).size > 2) {
+  if ((IraSquareSet.fromRank(0) & unmovedRooks).size > 2 ||
+      (IraSquareSet.fromRank(7) & unmovedRooks).size > 2) {
     throw const FenError('ERR_CASTLING');
   }
   return unmovedRooks;
