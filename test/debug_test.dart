@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:dartchess_webok/dartchess_webok.dart';
 
 void main() {
-  test('makeIraSquareSet', () {
+  test('makeSquareSet', () {
     const rep = '''
 . 1 1 1 . . . .
 . 1 . 1 . . . .
@@ -13,10 +13,10 @@ void main() {
 . 1 . . . 1 . .
 . 1 . . 1 . . .
 ''';
-    final sq = makeIraSquareSet(rep);
+    final sq = makeSquareSet(rep);
 
-    expect(rep, humanReadableIraSquareSet(sq));
-    expect(makeIraSquareSet('''
+    expect(rep, humanReadableSquareSet(sq));
+    expect(makeSquareSet('''
 . . . . . . . 1
 . . . . . . 1 .
 . . . . . 1 . .

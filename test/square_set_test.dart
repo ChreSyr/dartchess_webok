@@ -122,7 +122,7 @@ void main() {
   });
 
   test('from square', () {
-    expect(SquareSet.fromSquare(42), makeIraSquareSet('''
+    expect(SquareSet.fromSquare(42), makeSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . 1 . . . . .
@@ -136,7 +136,7 @@ void main() {
 
   test('from squares', () {
     expect(
-        SquareSet.fromSquares(const [42, 44, 26, 28]), makeIraSquareSet('''
+        SquareSet.fromSquares(const [42, 44, 26, 28]), makeSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . 1 . 1 . . .
@@ -149,7 +149,7 @@ void main() {
   });
 
   test('with square', () {
-    expect(SquareSet.center.withSquare(43), makeIraSquareSet('''
+    expect(SquareSet.center.withSquare(43), makeSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . 1 . . . .
@@ -162,7 +162,7 @@ void main() {
   });
 
   test('without square', () {
-    expect(SquareSet.center.withoutSquare(27), makeIraSquareSet('''
+    expect(SquareSet.center.withoutSquare(27), makeSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
@@ -177,7 +177,7 @@ void main() {
   test('toggle square', () {
     expect(
         SquareSet.center.toggleSquare(35).toggleSquare(43),
-        makeIraSquareSet('''
+        makeSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . 1 . . . .
@@ -190,7 +190,7 @@ void main() {
   });
 
   test('flip vertical', () {
-    expect(makeIraSquareSet('''
+    expect(makeSquareSet('''
 . 1 1 1 1 . . .
 . 1 . . . 1 . .
 . 1 . . . 1 . .
@@ -199,7 +199,7 @@ void main() {
 . 1 . 1 . . . .
 . 1 . . 1 . . .
 . 1 . . . 1 . .
-''').flipVertical(), makeIraSquareSet('''
+''').flipVertical(), makeSquareSet('''
 . 1 . . . 1 . .
 . 1 . . 1 . . .
 . 1 . 1 . . . .
@@ -212,7 +212,7 @@ void main() {
   });
 
   test('mirror horizontal', () {
-    expect(makeIraSquareSet('''
+    expect(makeSquareSet('''
 . 1 1 1 1 . . .
 . 1 . . . 1 . .
 . 1 . . . 1 . .
@@ -221,7 +221,7 @@ void main() {
 . 1 . 1 . . . .
 . 1 . . 1 . . .
 . 1 . . . 1 . .
-''').mirrorHorizontal(), makeIraSquareSet('''
+''').mirrorHorizontal(), makeSquareSet('''
 . . . 1 1 1 1 .
 . . 1 . . . 1 .
 . . 1 . . . 1 .

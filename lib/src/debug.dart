@@ -18,10 +18,10 @@ import './utils.dart';
 /// . 1 . . . 1 . .
 /// . 1 . . 1 . . .
 /// '''
-/// final squareSet = makeIraSquareSet(str);
+/// final squareSet = makeSquareSet(str);
 /// // SquareSet(0x0E0A12221E222212)
 /// ```
-SquareSet makeIraSquareSet(String rep) {
+SquareSet makeSquareSet(String rep) {
   SquareSet ret = SquareSet.empty;
   final table = rep
       .split('\n')
@@ -42,7 +42,7 @@ SquareSet makeIraSquareSet(String rep) {
 }
 
 /// Prints the square set as a human readable string format
-String humanReadableIraSquareSet(SquareSet sq) {
+String humanReadableSquareSet(SquareSet sq) {
   final buffer = StringBuffer();
   for (int y = 7; y >= 0; y--) {
     for (int x = 0; x < 8; x++) {
