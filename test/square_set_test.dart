@@ -1,5 +1,5 @@
-import 'package:dartchess_webok/dartchess_webok.dart';
-import 'package:test/test.dart';
+
+import 'package:dartchess_webok/dartchess_webok.dart';import 'package:test/test.dart';
 
 void main() {
   test('toString', () {
@@ -7,16 +7,13 @@ void main() {
     expect(SquareSet.full.toString(), 'SquareSet(0xFFFFFFFFFFFFFFFF)');
     expect(SquareSet.lightSquares.toString(), 'SquareSet(0x55AA55AA55AA55AA)');
     expect(SquareSet.darkSquares.toString(), 'SquareSet(0xAA55AA55AA55AA55)');
-    expect(
-        SquareSet.diagonal.toString(), 'SquareSet(0x8040201008040201)');
+    expect(SquareSet.diagonal.toString(), 'SquareSet(0x8040201008040201)');
     expect(SquareSet.antidiagonal.toString(), 'SquareSet(0x0102040810204080)');
     expect(SquareSet.corners.toString(), 'SquareSet(0x8100000000000081)');
-    expect(
-        SquareSet.backranks.toString(), 'SquareSet(0xFF000000000000FF)');
-    expect(SquareSet(BigInt.parse('0x0000000000000001')).toString(),
+    expect(SquareSet.backranks.toString(), 'SquareSet(0xFF000000000000FF)');
+    expect(SquareSet(BigInt.from(0x0000000000000001)).toString(),
         'SquareSet(0x0000000000000001)');
-    expect(
-        SquareSet(BigInt.parse('0xf')).toString(),
+    expect(SquareSet(BigInt.from(0xf)).toString(),
         'SquareSet(0x000000000000000F)');
   });
 
@@ -39,7 +36,7 @@ void main() {
     expect(r.shr(0), r);
     expect(r.shr(1), SquareSet(BigInt.parse('0x70509110f111109')));
     expect(r.shr(3), SquareSet(BigInt.parse('0x1c1424443c44442')));
-    expect(r.shr(48), SquareSet(BigInt.parse('0xe0a')));
+    expect(r.shr(48), SquareSet(BigInt.from(0xe0a)));
     expect(r.shr(62), SquareSet.empty);
   });
 
@@ -93,10 +90,8 @@ void main() {
 
   test('squares', () {
     expect(SquareSet.empty.squares.toList(), List<Square>.empty());
-    expect(
-        SquareSet.full.squares.toList(), [for (int i = 0; i < 64; i++) i]);
-    expect(
-        SquareSet.diagonal.squares, equals([0, 9, 18, 27, 36, 45, 54, 63]));
+    expect(SquareSet.full.squares.toList(), [for (int i = 0; i < 64; i++) i]);
+    expect(SquareSet.diagonal.squares, equals([0, 9, 18, 27, 36, 45, 54, 63]));
   });
 
   test('squaresReversed', () {
@@ -109,16 +104,21 @@ void main() {
 
   test('from file', () {
     expect(
-        SquareSet.fromFile(0), SquareSet(BigInt.parse('0x0101010101010101')));
+      SquareSet.fromFile(0),
+      SquareSet(BigInt.parse('0x0101010101010101')),
+    );
     expect(
-        SquareSet.fromFile(7), SquareSet(BigInt.parse('0x8080808080808080')));
+      SquareSet.fromFile(7),
+      SquareSet(BigInt.parse('0x8080808080808080')),
+    );
   });
 
   test('from rank', () {
+    expect(SquareSet.fromRank(0), SquareSet(BigInt.from(0x00000000000000FF)));
     expect(
-        SquareSet.fromRank(0), SquareSet(BigInt.parse('0x00000000000000FF')));
-    expect(
-        SquareSet.fromRank(7), SquareSet(BigInt.parse('0xFF00000000000000')));
+      SquareSet.fromRank(7),
+      SquareSet(BigInt.parse('0xFF00000000000000')),
+    );
   });
 
   test('from square', () {
@@ -135,8 +135,7 @@ void main() {
   });
 
   test('from squares', () {
-    expect(
-        SquareSet.fromSquares(const [42, 44, 26, 28]), makeSquareSet('''
+    expect(SquareSet.fromSquares(const [42, 44, 26, 28]), makeSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . 1 . 1 . . .
@@ -175,9 +174,7 @@ void main() {
   });
 
   test('toggle square', () {
-    expect(
-        SquareSet.center.toggleSquare(35).toggleSquare(43),
-        makeSquareSet('''
+    expect(SquareSet.center.toggleSquare(35).toggleSquare(43), makeSquareSet('''
 . . . . . . . .
 . . . . . . . .
 . . . 1 . . . .

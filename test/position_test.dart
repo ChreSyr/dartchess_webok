@@ -6,12 +6,36 @@ void main() {
   group('Position', () {
     test('implements hashCode/==', () {
       expect(Chess.initial, Chess.initial);
+      expect(Chess.initial, isNot(Antichess.initial));
       expect(Chess.initial, isNot(Chess.initial.play(Move.fromUci('e2e4')!)));
     });
 
     test('Chess.toString()', () {
       expect(Chess.initial.toString(),
           'Chess(board: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR, turn: Side.white, castles: Castles(unmovedRooks: SquareSet(0x8100000000000081)), halfmoves: 0, fullmoves: 1)');
+    });
+
+    test('Antichess.toString()', () {
+      expect(Antichess.initial.toString(),
+          'Antichess(board: $kInitialBoardFEN, turn: Side.white, castles: Castles(unmovedRooks: SquareSet(0)), halfmoves: 0, fullmoves: 1)');
+    });
+
+    test('ply', () {
+      expect(Chess.initial.ply, 0);
+      expect(Chess.initial.play(const NormalMove(from: 12, to: 28)).ply, 1);
+      expect(
+          Chess.initial
+              .play(const NormalMove(from: 12, to: 28))
+              .play(const NormalMove(from: 52, to: 36))
+              .ply,
+          2);
+      expect(
+          Chess.initial
+              .play(const NormalMove(from: 12, to: 28))
+              .play(const NormalMove(from: 52, to: 36))
+              .play(const NormalMove(from: 5, to: 26))
+              .ply,
+          3);
     });
   });
 
@@ -244,6 +268,19 @@ void main() {
       expect(
           position.parseSan('2e4'), equals(const NormalMove(from: 12, to: 28)));
     });
+
+    test('chess960 parseSan castle moves', () {
+      Position<Chess> position = Chess.fromSetup(Setup.parseFen(
+          'brknnqrb/pppppppp/8/8/8/8/PPPPPPPP/BRKNNQRB w KQkq - 0 1'));
+      const moves =
+          'b3 b6 Ne3 g6 Bxh8 Rxh8 O-O-O Qg7 Kb1 Ne6 Nd3 Nf6 h3 O-O-O Nc4 d5 Na3 Nd4 e3 Nc6 Nb5 Rhe8 f3 e5 g4 Re6 g5 Nd7 h4 h5 Bg2 a6 Nc3 Nc5 Nxc5 bxc5 Qxa6+ Bb7 Qa3 Kd7 Qxc5 Ra8 Nxd5 Rd6 Nf6+ Kc8 Ne8 Qf8 Nxd6+ cxd6 Qc3 f5 f4 e4 d3 Qd8 dxe4 Qb6 exf5 gxf5 Rxd6';
+      for (final move in moves.split(' ')) {
+        position = position.playUnchecked(position.parseSan(move)!);
+      }
+      expect(position.fullmoves, equals(31));
+      expect(position.fen,
+          'r1k5/1b6/1qnR4/5pPp/5P1P/1PQ1P3/P1P3B1/1K4R1 b - - 0 31');
+    });
   });
 
   group('Chess', () {
@@ -371,8 +408,7 @@ void main() {
     test('castling legal moves', () {
       final pos = Chess.fromSetup(Setup.parseFen(
           'r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1'));
-      expect(pos.legalMovesOf(4),
-          SquareSet(BigInt.parse('0x00000000000000A9')));
+      expect(pos.legalMovesOf(4), SquareSet(BigInt.from(0x00000000000000A9)));
     });
 
     test('isCheck', () {
@@ -485,8 +521,7 @@ void main() {
 
       test('halfmoves increment', () {
         // pawn move
-        expect(
-            Chess.initial.play(const NormalMove(from: 12, to: 28)).halfmoves,
+        expect(Chess.initial.play(const NormalMove(from: 12, to: 28)).halfmoves,
             0);
 
         // piece move
@@ -573,8 +608,7 @@ void main() {
         expect(pos.board.pieceAt(6), Piece.whiteKing);
         expect(pos.board.pieceAt(5), Piece.whiteRook);
         expect(
-            pos.castles.unmovedRooks
-                .isIntersected(SquareSet.fromRank(0)),
+            pos.castles.unmovedRooks.isIntersected(SquareSet.fromRank(0)),
             false);
         expect(pos.castles.rookOf(Side.white, CastlingSide.king), isNull);
         expect(pos.castles.rookOf(Side.white, CastlingSide.queen), isNull);
@@ -601,6 +635,390 @@ void main() {
         expect(pos3.play(altQueenSide).fen,
             '1r2k2r/p1b1n1pp/1q3p2/1p2pPQ1/4P3/2P4P/1B2B1P1/2KR3R b k - 1 20');
       });
+    });
+  });
+
+  group('Atomic', () {
+    test('king exploded', () {
+      final pos1 = Atomic.fromSetup(Setup.parseFen(
+          'r4b1r/ppp1pppp/7n/8/8/8/PPPPPPPP/RNBQKB1R b KQ - 0 3'));
+      expect(pos1.isGameOver, true);
+      expect(pos1.isVariantEnd, true);
+      expect(pos1.outcome, Outcome.whiteWins);
+
+      final pos2 = Atomic.fromSetup(Setup.parseFen(
+          'rn5r/pp4pp/2p3Nn/5p2/1b2P1PP/8/PPP2P2/R1B1KB1R b KQ - 0 9'));
+      expect(pos2.isGameOver, true);
+      expect(pos2.isVariantEnd, true);
+      expect(pos2.outcome, Outcome.whiteWins);
+    });
+
+    test('insufficient material', () {
+      for (final test in [
+        ['8/3k4/8/8/2N5/8/3K4/8 b - -', true, true],
+        ['8/4rk2/8/8/8/8/3K4/8 w - -', true, true],
+        ['8/4qk2/8/8/8/8/3K4/8 w - -', true, false],
+        ['8/1k6/8/2n5/8/3NK3/8/8 b - -', false, false],
+        ['8/4bk2/8/8/8/8/3KB3/8 w - -', true, true],
+        ['4b3/5k2/8/8/8/8/3KB3/8 w - -', false, false],
+        ['3Q4/5kKB/8/8/8/8/8/8 b - -', false, true],
+        ['8/5k2/8/8/8/8/5K2/4bb2 w - -', true, false],
+        ['8/5k2/8/8/8/8/5K2/4nb2 w - -', true, false],
+      ]) {
+        final pos = Atomic.fromSetup(Setup.parseFen(test[0] as String));
+        expect(pos.hasInsufficientMaterial(Side.white), test[1]);
+        expect(pos.hasInsufficientMaterial(Side.black), test[2]);
+      }
+    });
+  });
+
+  group('Antichess', () {
+    test('insufficient material', () {
+      const falseNegative = false;
+      for (final test in [
+        ['8/4bk2/8/8/8/8/3KB3/8 w - -', false, false],
+        ['4b3/5k2/8/8/8/8/3KB3/8 w - -', false, false],
+        ['8/8/8/6b1/8/3B4/4B3/5B2 w - -', true, true],
+        ['8/8/5b2/8/8/3B4/3B4/8 w - -', true, false],
+        ['8/5p2/5P2/8/3B4/1bB5/8/8 b - -', falseNegative, falseNegative],
+        ['8/8/8/1n2N3/8/8/8/8 w - - 0 32', true, false],
+        ['8/3N4/8/1n6/8/8/8/8 b - - 1 32', true, false],
+        ['6n1/8/8/4N3/8/8/8/8 b - - 0 27', false, true],
+        ['8/8/5n2/4N3/8/8/8/8 w - - 1 28', false, true],
+        ['8/3n4/8/8/8/8/8/8 w - - 0 29', false, true],
+      ]) {
+        final pos = Antichess.fromSetup(Setup.parseFen(test[0] as String));
+        expect(pos.hasInsufficientMaterial(Side.white), test[1]);
+        expect(pos.hasInsufficientMaterial(Side.black), test[2]);
+      }
+    });
+
+    test('en passant', () {
+      final setup = Setup.parseFen(
+          'r1bqkbn1/p1ppp3/2n4p/6p1/1Pp5/4P3/P2P1PP1/R1B1K3 b - b3 0 11');
+      final pos = Antichess.fromSetup(setup);
+      final move = Move.fromUci('c4b3')!;
+      expect(pos.isLegal(move), isTrue);
+
+      final sanMove = pos.parseSan('cxb3');
+      expect(move, equals(sanMove));
+    });
+
+    test('parse san', () {
+      Position position = Antichess.initial;
+      final moves = [
+        'g3',
+        'Nh6',
+        'g4',
+        'Nxg4',
+        'b3',
+        'Nxh2',
+        'Rxh2',
+        'g5',
+        'Rxh7',
+        'Rxh7',
+        'Bh3',
+        'Rxh3',
+        'Nxh3',
+        'Na6',
+        'Nxg5',
+        'Nb4',
+        'Nxf7',
+        'Nxc2',
+        'Qxc2',
+        'Kxf7',
+        'Qxc7',
+        'Qxc7',
+        'a4',
+        'Qxc1',
+        'Ra3',
+        'Qxa3',
+        'Nxa3',
+        'b5',
+        'Nxb5',
+        'Rb8',
+        'Nxa7',
+        'Rxb3',
+        'Nxc8',
+        'Rg3',
+        'Nxe7',
+        'Bxe7',
+        'fxg3',
+        'Bh4',
+        'gxh4',
+        'd5',
+        'e4',
+        'dxe4',
+        'd3',
+        'exd3',
+        'Kf1',
+        'd2',
+        'Kg1',
+        'Kf6',
+        'a5',
+        'Ke6',
+        'a6',
+        'Kd7',
+        'a7',
+        'Kc7',
+        'h5',
+        'd1=B',
+        'a8=B',
+        'Bxh5',
+        'Bf3',
+        'Bxf3',
+        'Kg2',
+        'Bxg2#',
+      ];
+      for (final move in moves) {
+        position = position.play(position.parseSan(move)!);
+      }
+      expect(position.fen, equals('8/2k5/8/8/8/8/6b1/8 w - - 0 32'));
+    });
+
+    test('parse san, king promotion', () {
+      const moves = [
+        'e4',
+        'c6',
+        'h3',
+        'd5',
+        'exd5',
+        'Bxh3',
+        'dxc6',
+        'Bxg2',
+        'cxb7',
+        'Bxh1',
+        'bxa8=K'
+      ];
+      Position position = Antichess.initial;
+      for (final move in moves) {
+        position = position.play(position.parseSan(move)!);
+      }
+      expect(position.fen,
+          equals('Kn1qkbnr/p3pppp/8/8/8/8/PPPP1P2/RNBQKBNb b - - 0 6'));
+    });
+  });
+
+  group('Crazyhouse', () {
+    test('insufficient material', () {
+      for (final test in [
+        ['8/5k2/8/8/8/8/3K2N1/8[] w - -', true, true],
+        ['8/5k2/8/8/8/5B2/3KB3/8[] w - -', false, false],
+        ['8/8/8/8/3k4/3N~4/3K4/8 w - - 0 1', false, false],
+      ]) {
+        final pos = Crazyhouse.fromSetup(Setup.parseFen(test[0] as String));
+        expect(pos.hasInsufficientMaterial(Side.white), test[1]);
+        expect(pos.hasInsufficientMaterial(Side.black), test[2]);
+      }
+    });
+
+    test('parse san', () {
+      Position position = Crazyhouse.initial;
+      final moves = [
+        'd4',
+        'd5',
+        'Nc3',
+        'Bf5',
+        'e3',
+        'e6',
+        'Bd3',
+        'Bg6',
+        'Nf3',
+        'Bd6',
+        'O-O',
+        'Ne7',
+        'g3',
+        'Nbc6',
+        'Re1',
+        'O-O',
+        'Ne2',
+        'e5',
+        'dxe5',
+        'Nxe5',
+        'Nxe5',
+        'Bxe5',
+        'f4',
+        'N@f3+',
+        'Kg2',
+        'Nxe1+',
+        'Qxe1',
+        'Bd6',
+        '@f3',
+        '@e4',
+        'fxe4',
+        'dxe4',
+        'Bc4',
+        '@f3+',
+        'Kf2',
+        'fxe2',
+        'Qxe2',
+        'N@h3+',
+        'Kg2',
+        'R@f2+',
+        'Qxf2',
+        'Nxf2',
+        'Kxf2',
+        'Q@f3+',
+        'Ke1',
+        'Bxf4',
+        'gxf4',
+        'Qdd1#',
+      ];
+      for (final move in moves) {
+        position = position.play(position.parseSan(move)!);
+      }
+      expect(
+          position.fen,
+          equals(
+              'r4rk1/ppp1nppp/6b1/8/2B1pP2/4Pq2/PPP4P/R1BqK3[PPNNNBRp] w - - 1 25'));
+    });
+
+    test('castle checkmates', () {
+      Position position = Crazyhouse.initial;
+      final moves = [
+        'd4',
+        'f5',
+        'Nc3',
+        'Nf6',
+        'Nf3',
+        'e6',
+        'Bg5',
+        'Be7',
+        'Bxf6',
+        'Bxf6',
+        'e4',
+        'fxe4',
+        'Nxe4',
+        'b6',
+        'Ne5',
+        'O-O',
+        'Bd3',
+        'Bb7',
+        'Qh5',
+        'Qe7',
+        'Qxh7+',
+        'Kxh7',
+        'Nxf6+',
+        'Kh6',
+        'Neg4+',
+        'Kg5',
+        'h4+',
+        'Kf4',
+        'g3+',
+        'Kf3',
+        'Be2+',
+        'Kg2',
+        'Rh2+',
+        'Kg1',
+        'O-O-O#',
+      ];
+      for (final move in moves) {
+        position = position.play(position.parseSan(move)!);
+      }
+      expect(position.isCheckmate, equals(true));
+    });
+  });
+
+  group('King of the hill', () {
+    test('insufficient material', () {
+      for (final test in [
+        ['8/5k2/8/8/8/8/3K4/8 w - -', false, false],
+      ]) {
+        final pos = KingOfTheHill.fromSetup(Setup.parseFen(test[0] as String));
+        expect(pos.hasInsufficientMaterial(Side.white), test[1]);
+        expect(pos.hasInsufficientMaterial(Side.black), test[2]);
+      }
+    });
+    test('game end conditions', () {
+      final pos = KingOfTheHill.fromSetup(
+          Setup.parseFen('8/5k2/8/8/8/8/1K6/8 w - - 0 1'));
+      expect(pos.isInsufficientMaterial, false);
+      expect(pos.isCheck, false);
+      expect(pos.isVariantEnd, false);
+      expect(pos.variantOutcome, null);
+      expect(pos.outcome, null);
+      expect(pos.isGameOver, false);
+
+      final pos2 = KingOfTheHill.fromSetup(Setup.parseFen(
+          'r1bqkbnr/ppp2ppp/2np4/4p3/4K3/8/PPPP1PPP/RNBQ1BNR w HAkq - 0 1'));
+      expect(pos2.isVariantEnd, true);
+      expect(pos2.isGameOver, true);
+      expect(pos2.variantOutcome, Outcome.whiteWins);
+    });
+  });
+
+  group('Racing Kings', () {
+    test('start position', () {
+      final position = RacingKings.initial;
+      expect(position.fen, equals('8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1'));
+    });
+
+    test('draw', () {
+      // Both pieces are on the backrank
+      final position = RacingKings.fromSetup(
+          Setup.parseFen('kr3NK1/1q2R3/8/8/8/5n2/2N5/1rb2B1R w - - 11 14'));
+      expect(position.isVariantEnd, true);
+      expect(position.variantOutcome, Outcome.draw);
+    });
+
+    test('white win', () {
+      final position = RacingKings.fromSetup(
+          Setup.parseFen('2KR4/k7/2Q5/4q3/8/8/8/2N5 b - - 0 1'));
+      expect(position.isVariantEnd, true);
+      expect(position.variantOutcome, Outcome.whiteWins);
+    });
+
+    test('black win', () {
+      final position = RacingKings.fromSetup(
+          Setup.parseFen('1k6/6K1/8/8/8/8/8/8 w - - 0 1'));
+      expect(position.isVariantEnd, true);
+      expect(position.variantOutcome, Outcome.blackWins);
+    });
+
+    test('game ongoing', () {
+      // While the white king is on the back rank
+      // The black king can reach the back rank this turn
+      final position =
+          RacingKings.fromSetup(Setup.parseFen('1K6/7k/8/8/8/8/8/8 b - - 0 1'));
+      expect(position.isVariantEnd, false);
+      expect(position.variantOutcome, null);
+    });
+  });
+
+  group('Three check', () {
+    test('insufficient material', () {
+      for (final test in [
+        ['8/5k2/8/8/8/8/3K4/8 w - - 3+3', true, true],
+        ['8/5k2/8/8/8/8/3K2N1/8 w - - 3+3', false, true],
+      ]) {
+        final pos = ThreeCheck.fromSetup(Setup.parseFen(test[0] as String));
+        expect(pos.hasInsufficientMaterial(Side.white), test[1]);
+        expect(pos.hasInsufficientMaterial(Side.black), test[2]);
+      }
+    });
+
+    test('remaining checks', () {
+      final pos = ThreeCheck.fromSetup(Setup.parseFen(
+          'rnbqkbnr/ppp1pppp/3p4/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 3+3 0 2'));
+      expect(pos.play(Move.fromUci('f1b5')!).fen,
+          'rnbqkbnr/ppp1pppp/3p4/1B6/8/4P3/PPPP1PPP/RNBQK1NR b KQkq - 2+3 1 2');
+    });
+  });
+
+  group('Horde', () {
+    test('insufficient material', () {
+      for (final test in [
+        ['8/5k2/8/8/8/4NN2/8/8 w - - 0 1', true, false],
+        ['8/8/8/2B5/p7/kp6/pq6/8 b - - 0 1', false, false],
+        ['8/8/8/2B5/r7/kn6/nr6/8 b - - 0 1', true, false],
+        ['8/8/1N6/rb6/kr6/qn6/8/8 b - - 0 1', false, false],
+        ['8/8/1N6/qq6/kq6/nq6/8/8 b - - 0 1', true, false],
+        ['8/P1P5/8/8/8/8/brqqn3/k7 b - - 0 1', false, false],
+      ]) {
+        final pos = Horde.fromSetup(Setup.parseFen(test[0] as String));
+        expect(pos.hasInsufficientMaterial(Side.white), test[1]);
+        expect(pos.hasInsufficientMaterial(Side.black), test[2]);
+      }
     });
   });
 }

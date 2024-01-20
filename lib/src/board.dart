@@ -9,6 +9,7 @@ import './attacks.dart';
 class Board {
   const Board({
     required this.occupied,
+    required this.promoted,
     required this.white,
     required this.black,
     required this.pawns,
@@ -21,6 +22,11 @@ class Board {
 
   /// All occupied squares.
   final SquareSet occupied;
+
+  /// All squares occupied by pieces known to be promoted.
+  ///
+  /// This information is relevant in chess variants like [Crazyhouse].
+  final SquareSet promoted;
 
   /// All squares occupied by white pieces.
   final SquareSet white;
@@ -49,7 +55,8 @@ class Board {
   /// Standard chess starting position.
   static final standard = Board(
     occupied: SquareSet(BigInt.parse('0xffff00000000ffff')),
-    white: SquareSet(BigInt.parse('0xffff')),
+    promoted: SquareSet.empty,
+    white: SquareSet(BigInt.from(0xffff)),
     black: SquareSet(BigInt.parse('0xffff000000000000')),
     pawns: SquareSet(BigInt.parse('0x00ff00000000ff00')),
     knights: SquareSet(BigInt.parse('0x4200000000000042')),
@@ -59,8 +66,36 @@ class Board {
     kings: SquareSet(BigInt.parse('0x1000000000000010')),
   );
 
+  /// Racing Kings start position
+  static final racingKings = Board(
+      occupied: SquareSet(BigInt.from(0xffff)),
+      promoted: SquareSet.empty,
+      white: SquareSet(BigInt.from(0xf0f0)),
+      black: SquareSet(BigInt.from(0x0f0f)),
+      pawns: SquareSet.empty,
+      knights: SquareSet(BigInt.from(0x1818)),
+      bishops: SquareSet(BigInt.from(0x2424)),
+      rooks: SquareSet(BigInt.from(0x4242)),
+      queens: SquareSet(BigInt.from(0x0081)),
+      kings: SquareSet(BigInt.from(0x8100)));
+
+  /// Horde start Positioin
+  static final horde = Board(
+    occupied: SquareSet(BigInt.parse('0xffff0066ffffffff')),
+    promoted: SquareSet.empty,
+    white: SquareSet(BigInt.from(0x00000066ffffffff)),
+    black: SquareSet(BigInt.parse('0xffff000000000000')),
+    pawns: SquareSet(BigInt.parse('0x00ff0066ffffffff')),
+    knights: SquareSet(BigInt.parse('0x4200000000000000')),
+    bishops: SquareSet(BigInt.parse('0x2400000000000000')),
+    rooks: SquareSet(BigInt.parse('0x8100000000000000')),
+    queens: SquareSet(BigInt.parse('0x0800000000000000')),
+    kings: SquareSet(BigInt.parse('0x1000000000000000')),
+  );
+
   static final empty = Board(
     occupied: SquareSet.empty,
+    promoted: SquareSet.empty,
     white: SquareSet.empty,
     black: SquareSet.empty,
     pawns: SquareSet.empty,
@@ -90,8 +125,10 @@ class Board {
         } else {
           if (file >= 8 || rank < 0) throw const FenError('ERR_BOARD');
           final square = file + rank * 8;
-          final piece = _charToPiece(c);
+          final promoted = i + 1 < boardFen.length && boardFen[i + 1] == '~';
+          final piece = _charToPiece(c, promoted);
           if (piece == null) throw const FenError('ERR_BOARD');
+          if (promoted) i++;
           board = board.setPieceAt(square, piece);
           file++;
         }
@@ -204,7 +241,8 @@ class Board {
       return null;
     }
     final role = roleAt(square)!;
-    return Piece(color: side, role: role);
+    final prom = promoted.has(square);
+    return Piece(color: side, role: role, promoted: prom);
   }
 
   /// Finds the unique king [Square] of the given [Side], if any.
@@ -226,6 +264,7 @@ class Board {
   Board setPieceAt(Square square, Piece piece) {
     return removePieceAt(square)._copyWith(
       occupied: occupied.withSquare(square),
+      promoted: piece.promoted ? promoted.withSquare(square) : null,
       white: piece.color == Side.white ? white.withSquare(square) : null,
       black: piece.color == Side.black ? black.withSquare(square) : null,
       pawns: piece.role == Role.pawn ? pawns.withSquare(square) : null,
@@ -243,6 +282,7 @@ class Board {
     return piece != null
         ? _copyWith(
             occupied: occupied.withoutSquare(square),
+            promoted: piece.promoted ? promoted.withoutSquare(square) : null,
             white:
                 piece.color == Side.white ? white.withoutSquare(square) : null,
             black:
@@ -262,8 +302,13 @@ class Board {
         : this;
   }
 
+  Board withPromoted(SquareSet promoted) {
+    return _copyWith(promoted: promoted);
+  }
+
   Board _copyWith({
     SquareSet? occupied,
+    SquareSet? promoted,
     SquareSet? white,
     SquareSet? black,
     SquareSet? pawns,
@@ -275,6 +320,7 @@ class Board {
   }) {
     return Board(
       occupied: occupied ?? this.occupied,
+      promoted: promoted ?? this.promoted,
       white: white ?? this.white,
       black: black ?? this.black,
       pawns: pawns ?? this.pawns,
@@ -294,6 +340,7 @@ class Board {
     return identical(this, other) ||
         other is Board &&
             other.occupied == occupied &&
+            other.promoted == promoted &&
             other.white == white &&
             other.black == black &&
             other.pawns == pawns &&
@@ -305,18 +352,17 @@ class Board {
   }
 
   @override
-  int get hashCode => Object.hash(
-      occupied, white, black, pawns,
+  int get hashCode => Object.hash(occupied, promoted, white, black, pawns,
       knights, bishops, rooks, queens, kings);
 }
 
-Piece? _charToPiece(String ch) {
+Piece? _charToPiece(String ch, bool promoted) {
   final role = Role.fromChar(ch);
   if (role != null) {
     return Piece(
         role: role,
         color: ch == ch.toLowerCase() ? Side.black : Side.white,
-    );
+        promoted: promoted);
   }
   return null;
 }

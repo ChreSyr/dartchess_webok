@@ -149,10 +149,12 @@ class Piece {
   const Piece({
     required this.color,
     required this.role,
+    this.promoted = false,
   });
 
   final Side color;
   final Role role;
+  final bool promoted;
 
   static Piece? fromChar(String ch) {
     final role = Role.fromChar(ch);
@@ -166,16 +168,19 @@ class Piece {
   String get fenChar {
     String r = role.char;
     if (color == Side.white) r = r.toUpperCase();
+    if (promoted) r += '~';
     return r;
   }
 
   Piece copyWith({
     Side? color,
     Role? role,
+    bool? promoted,
   }) {
     return Piece(
       color: color ?? this.color,
       role: role ?? this.role,
+      promoted: promoted ?? this.promoted,
     );
   }
 
@@ -190,11 +195,12 @@ class Piece {
         other is Piece &&
             other.runtimeType == runtimeType &&
             color == other.color &&
-            role == other.role;
+            role == other.role &&
+            promoted == other.promoted;
   }
 
   @override
-  int get hashCode => Object.hash(color, role);
+  int get hashCode => Object.hash(color, role, promoted);
 
   static const whitePawn = Piece(color: Side.white, role: Role.pawn);
   static const whiteKnight = Piece(color: Side.white, role: Role.knight);
@@ -230,7 +236,11 @@ sealed class Move {
   ///
   /// Returns `null` if UCI string is not valid.
   static Move? fromUci(String str) {
-    if (str.length == 4 || str.length == 5) {
+    if (str[1] == '@' && str.length == 4) {
+      final role = Role.fromChar(str[0]);
+      final to = parseSquare(str.substring(2));
+      if (role != null && to != null) return DropMove(to: to, role: role);
+    } else if (str.length == 4 || str.length == 5) {
       final from = parseSquare(str.substring(0, 2));
       final to = parseSquare(str.substring(2, 4));
       Role? promotion;
@@ -285,25 +295,104 @@ class NormalMove extends Move {
   int get hashCode => Object.hash(from, to, promotion);
 }
 
+/// Represents a drop move.
+@immutable
+class DropMove extends Move {
+  const DropMove({
+    required super.to,
+    required this.role,
+  });
+
+  final Role role;
+
+  /// Gets UCI notation of the drop, like `Q@f7`.
+  @override
+  String get uci => '${role.char.toUpperCase()}@${toAlgebraic(to)}';
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other.runtimeType == runtimeType && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode => Object.hash(to, role);
+}
+
 @immutable
 class FenError implements Exception {
   final String message;
   const FenError(this.message);
 }
 
-/// Represents the different possible rules of chess
-enum Rules {
-  chess;
+/// Represents the different possible rules of chess and its variants
+enum Rule {
+  chess,
+  antichess,
+  kingofthehill,
+  threecheck,
+  atomic,
+  horde,
+  racingKings,
+  crazyhouse;
 
   /// Parses a PGN header variant tag
-  static Rules? fromPgn(String? variant) {
+  static Rule? fromPgn(String? variant) {
     switch ((variant ?? 'chess').toLowerCase()) {
       case 'chess':
+      case 'chess960':
+      case 'chess 960':
       case 'standard':
       case 'from position':
       case 'classical':
       case 'normal':
-        return Rules.chess;
+      case 'fischerandom': // Cute Chess
+      case 'fischerrandom':
+      case 'fischer random':
+      case 'wild/0':
+      case 'wild/1':
+      case 'wild/2':
+      case 'wild/3':
+      case 'wild/4':
+      case 'wild/5':
+      case 'wild/6':
+      case 'wild/7':
+      case 'wild/8':
+      case 'wild/8a':
+        return Rule.chess;
+      case 'crazyhouse':
+      case 'crazy house':
+      case 'house':
+      case 'zh':
+        return Rule.crazyhouse;
+      case 'king of the hill':
+      case 'koth':
+      case 'kingofthehill':
+        return Rule.kingofthehill;
+      case 'three-check':
+      case 'three check':
+      case 'threecheck':
+      case 'three check chess':
+      case '3-check':
+      case '3 check':
+      case '3check':
+        return Rule.threecheck;
+      case 'antichess':
+      case 'anti chess':
+      case 'anti':
+        return Rule.antichess;
+      case 'atomic':
+      case 'atom':
+      case 'atomic chess':
+        return Rule.atomic;
+      case 'horde':
+      case 'horde chess':
+        return Rule.horde;
+      case 'racing kings':
+      case 'racingkings':
+      case 'racing':
+      case 'race':
+        return Rule.racingKings;
       default:
         return null;
     }

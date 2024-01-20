@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'package:meta/meta.dart';
 import './setup.dart';
@@ -8,7 +9,7 @@ import './utils.dart';
 
 typedef PgnHeaders = Map<String, String>;
 
-/// A Portable Game Notation (PNG) representation.
+/// A Portable Game Notation (PGN) representation.
 ///
 /// A PGN game is composed of [PgnHeaders] and moves represented by a [PgnNode] tree.
 ///
@@ -37,10 +38,17 @@ typedef PgnHeaders = Map<String, String>;
 /// In the example below, the current [Position] `pos` is provided as context.
 ///
 /// ```dart
-/// class NodeWithFen {
+/// class PgnNodeWithFen extends PgnNodeData {
 ///   final String fen;
-///   final PgnNodeData data;
-///   const NodeWithFen({required this.fen, required this.data});
+///   const PgnNodeWithFen(
+///       {required this.fen,
+///       required super.san,
+///       super.startingComments,
+///       super.comments,
+///       super.nags});
+///
+///    // Override == and hashCode
+///    // ...
 /// }
 ///
 /// final game = PgnGame.parsePgn('1. e4 e5 *');
@@ -51,13 +59,13 @@ typedef PgnHeaders = Map<String, String>;
 ///     if (move != null) {
 ///       final newPos = pos.play(move);
 ///       return (
-///           newPos, NodeWithFen(fen: newPos.fen, data: data));
+///           newPos, NodeWithFen(fen: newPos.fen, san: data.san, comments: data.comments, nags: data.nags));
 ///     }
 ///     return null;
 ///   },
 /// );
 /// ```
-class PgnGame<T> {
+class PgnGame<T extends PgnNodeData> {
   /// Constructs a new [PgnGame].
   PgnGame({required this.headers, required this.moves, required this.comments});
 
@@ -131,14 +139,14 @@ class PgnGame<T> {
   /// Throws a [PositionError] if it does not meet basic validity requirements.
   static Position startingPosition(PgnHeaders headers,
       {bool? ignoreImpossibleCheck}) {
-    final rules = Rules.fromPgn(headers['Variant']);
-    if (rules == null) throw PositionError.variant;
+    final rule = Rule.fromPgn(headers['Variant']);
+    if (rule == null) throw PositionError.variant;
     if (!headers.containsKey('FEN')) {
-      return Position.initialPosition(rules);
+      return Position.initialPosition(rule);
     }
     final fen = headers['FEN']!;
     try {
-      return Position.setupPosition(rules, Setup.parseFen(fen),
+      return Position.setupPosition(rule, Setup.parseFen(fen),
           ignoreImpossibleCheck: ignoreImpossibleCheck);
     } catch (err) {
       rethrow;
@@ -167,8 +175,7 @@ class PgnGame<T> {
     final List<_PgnFrame> stack = [];
 
     if (moves.children.isNotEmpty) {
-      final variations =
-          moves.children.iterator as Iterator<PgnChildNode<PgnNodeData>>;
+      final variations = moves.children.iterator;
       variations.moveNext();
       stack.add(_PgnFrame(
           state: _PgnState.pre,
@@ -264,57 +271,26 @@ class PgnGame<T> {
 }
 
 /// PGN data for a [PgnNode].
-@immutable
 class PgnNodeData {
-  /// Constructs a new immutable [PgnNodeData].
-  const PgnNodeData(
+  /// Constructs a new [PgnNodeData].
+  PgnNodeData(
       {required this.san, this.startingComments, this.comments, this.nags});
 
   /// SAN representation of the move.
   final String san;
 
   /// PGN comments before the move.
-  final List<String>? startingComments;
+  List<String>? startingComments;
 
   /// PGN comments after the move.
-  final List<String>? comments;
+  List<String>? comments;
 
   /// Numeric Annotation Glyphs for the move.
-  final List<int>? nags;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PgnNodeData &&
-          san == other.san &&
-          startingComments == other.startingComments &&
-          comments == other.comments &&
-          nags == other.nags;
-
-  @override
-  int get hashCode => Object.hash(san, startingComments, comments, nags);
-
-  /// Return a new PgnNodeData by adding a [comment] to the current object
-  PgnNodeData copyWithComment(String comment) {
-    return PgnNodeData(
-        san: san,
-        startingComments: startingComments,
-        comments: [...comments ?? [], comment],
-        nags: nags);
-  }
-
-  /// Return a new PgnNodeData by adding a [nag] to the current object
-  PgnNodeData copyWithNag(int nag) {
-    return PgnNodeData(
-        san: san,
-        startingComments: startingComments,
-        comments: comments,
-        nags: [...nags ?? [], nag]);
-  }
+  List<int>? nags;
 }
 
 /// Parent node containing a list of child nodes (does not contain any data itself).
-class PgnNode<T> {
+class PgnNode<T extends PgnNodeData> {
   final List<PgnChildNode<T>> children = [];
 
   /// Implements an [Iterable] to iterate the mainline.
@@ -327,18 +303,22 @@ class PgnNode<T> {
     }
   }
 
-  /// Function to walk through each node and transform this node tree into
-  /// a [PgnNode<U>] tree.
-  PgnNode<U> transform<U, C>(C ctx, (C, U)? Function(C, T, int) f) {
+  /// Transform this node into a [PgnNode<U>] tree.
+  ///
+  /// The callback function [f] is called for each node in the tree. If the
+  /// callback returns null, the node is not added to the result tree.
+  /// The callback should return a tuple of the updated context and node data.
+  PgnNode<U> transform<U extends PgnNodeData, C>(
+      C context, (C, U)? Function(C context, T data, int childIndex) f) {
     final root = PgnNode<U>();
-    final stack = [_TransformFrame<T, U, C>(this, root, ctx)];
+    final stack = [(before: this, after: root, context: context)];
 
     while (stack.isNotEmpty) {
       final frame = stack.removeLast();
       for (int childIdx = 0;
           childIdx < frame.before.children.length;
           childIdx++) {
-        C ctx = frame.ctx;
+        C ctx = frame.context;
         final childBefore = frame.before.children[childIdx];
         final transformData = f(ctx, childBefore.data, childIdx);
         if (transformData != null) {
@@ -346,7 +326,7 @@ class PgnNode<T> {
           ctx = newCtx;
           final childAfter = PgnChildNode(data);
           frame.after.children.add(childAfter);
-          stack.add(_TransformFrame(childBefore, childAfter, ctx));
+          stack.add((before: childBefore, after: childAfter, context: ctx));
         }
       }
     }
@@ -357,7 +337,7 @@ class PgnNode<T> {
 /// PGN child Node.
 ///
 /// This class has a mutable `data` field.
-class PgnChildNode<T> extends PgnNode<T> {
+class PgnChildNode<T extends PgnNodeData> extends PgnNode<T> {
   PgnChildNode(this.data);
 
   /// PGN Data.
@@ -435,6 +415,17 @@ class PgnCommentShape {
     }
     return null;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PgnCommentShape &&
+          color == other.color &&
+          from == other.from &&
+          to == other.to;
+
+  @override
+  int get hashCode => Object.hash(color, from, to);
 }
 
 /// Represents the type of [PgnEvaluation].
@@ -495,13 +486,18 @@ class PgnEvaluation {
 @immutable
 class PgnComment {
   const PgnComment(
-      {this.text, this.shapes = const [], this.clock, this.emt, this.eval});
+      {this.text,
+      this.shapes = const IListConst([]),
+      this.clock,
+      this.emt,
+      this.eval})
+      : assert(text == null || text != '');
 
   /// Comment string.
   final String? text;
 
   /// List of comment shapes.
-  final List<PgnCommentShape> shapes;
+  final IList<PgnCommentShape> shapes;
 
   /// Player's remaining time.
   final Duration? clock;
@@ -567,7 +563,11 @@ class PgnComment {
     }).trim();
 
     return PgnComment(
-        text: text, shapes: shapes, emt: emt, clock: clock, eval: eval);
+        text: text.isNotEmpty ? text : null,
+        shapes: IList(shapes),
+        emt: emt,
+        clock: clock,
+        eval: eval);
   }
 
   /// Make a PGN string from this comment.
@@ -597,6 +597,7 @@ class PgnComment {
     return identical(this, other) ||
         other is PgnComment &&
             text == other.text &&
+            shapes == other.shapes &&
             clock == other.clock &&
             emt == other.emt &&
             eval == other.eval;
@@ -604,14 +605,6 @@ class PgnComment {
 
   @override
   int get hashCode => Object.hash(text, shapes, clock, emt, eval);
-}
-
-class _TransformFrame<T, U, C> {
-  final PgnNode<T> before;
-  final PgnNode<U> after;
-  final C ctx;
-
-  _TransformFrame(this.before, this.after, this.ctx);
 }
 
 /// A frame used for parsing a line
@@ -822,9 +815,11 @@ class _PgnParser {
                   if (_stack.length > 1) _stack.removeLast();
                 } else if (token == '{') {
                   final openIndex = match.end;
-                  final beginIndex =
-                      line[openIndex] == ' ' ? openIndex + 1 : openIndex;
-                  line = line.substring(beginIndex);
+                  if (openIndex < line.length) {
+                    final beginIndex =
+                        line[openIndex] == ' ' ? openIndex + 1 : openIndex;
+                    line = line.substring(beginIndex);
+                  }
                   _state = _ParserState.comment;
                   continue continuedLine;
                 } else {
@@ -871,7 +866,8 @@ class _PgnParser {
   void _handleNag(int nag) {
     final frame = _stack[_stack.length - 1];
     if (frame.node != null) {
-      frame.node!.data = frame.node!.data.copyWithNag(nag);
+      frame.node!.data.nags ??= [];
+      frame.node!.data.nags?.add(nag);
     }
   }
 
@@ -880,7 +876,8 @@ class _PgnParser {
     final comment = _commentBuf.join('\n');
     _commentBuf = [];
     if (frame.node != null) {
-      frame.node!.data = frame.node!.data.copyWithComment(comment);
+      frame.node!.data.comments ??= [];
+      frame.node!.data.comments?.add(comment);
     } else if (frame.root) {
       _gameComments.add(comment);
     } else {

@@ -22,7 +22,7 @@ void main() {
   test('setPieceAt', () {
     const piece = Piece.whiteKing;
     final board = Board.empty.setPieceAt(0, piece);
-    expect(board.occupied, SquareSet(BigInt.parse('0x0000000000000001')));
+    expect(board.occupied, SquareSet(BigInt.from(0x0000000000000001)));
     expect(board.pieces.length, 1);
     expect(board.pieceAt(0), piece);
 
@@ -47,6 +47,12 @@ void main() {
   test('parse board fen', () {
     final board = Board.parseFen(kInitialBoardFEN);
     expect(board, Board.standard);
+  });
+
+  test('parse board fen, promoted piece', () {
+    final board =
+        Board.parseFen('rQ~q1kb1r/pp2pppp/2p5/8/3P1Bb1/4PN2/PPP3PP/R2QKB1R');
+    expect(board.promoted.squares.length, 1);
   });
 
   test('invalid board fen', () {
