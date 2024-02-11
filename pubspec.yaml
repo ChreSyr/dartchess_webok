@@ -1,7 +1,7 @@
 name: dartchess_webok
 description: Provides Chess rules and operations including move generation, read and write FEN, read and write PGN.
 repository: https://github.com/ChreSyr/dartchess_webok
-version: 0.2.1
+version: 0.2.2
 platforms:
   android:
   ios:
@@ -18,7 +18,7 @@ environment:
 
 dependencies:
   fast_immutable_collections: ^10.1.0
-  meta: ^1.12.0
+  meta: ^1.10.0
 
 dev_dependencies:
   benchmark: ^0.3.0
